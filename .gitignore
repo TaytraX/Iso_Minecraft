@@ -6,6 +6,7 @@ build/
 
 ### IntelliJ IDEA ###
 .idea/
+hardware_config.properties
 
 ### Eclipse ###
 .apt_generated
