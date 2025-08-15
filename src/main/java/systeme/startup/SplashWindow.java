@@ -14,7 +14,7 @@ public class SplashWindow {
 
     public void init() {
         initGLFW();
-        SplashConfig();
+        splashConfig();
         createSplashWindow();
     }
 
@@ -25,7 +25,7 @@ public class SplashWindow {
             throw new IllegalStateException("Unable to initialize GLFW");
     }
 
-    private void SplashConfig() {
+    private void splashConfig() {
         glfwDefaultWindowHints();
 
         //Visibilité and Comportement
