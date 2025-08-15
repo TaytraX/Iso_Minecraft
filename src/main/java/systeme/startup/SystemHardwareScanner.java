@@ -1,16 +1,21 @@
 package systeme.startup;
 
+import kotlin.io.AccessDeniedException;
+import org.lwjgl.opengl.GL;
 import oshi.SystemInfo;
 import oshi.hardware.*;
 import oshi.software.os.OperatingSystem;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
+import static org.lwjgl.opengl.GL30.GL_INVALID_FRAMEBUFFER_OPERATION;
 
 public class SystemHardwareScanner {
     private final SystemInfo systemInfo;
@@ -109,8 +114,12 @@ public class SystemHardwareScanner {
                         ));
                     }
                 }
-            } catch (Exception e) {
-                System.out.println("OSHI display detection failed, using AWT fallback");
+            } catch (UnsupportedOperationException e) {
+                // Plateforme non supportée par OSHI
+                System.out.println("OSHI display detection not supported, using AWT fallback");
+            } catch (SecurityException e) {
+                displayInfo.set("Displays: Access denied to display configuration");
+                return;
             }
 
             // Méthode 2: AWT GraphicsEnvironment (plus fiable)
@@ -138,9 +147,12 @@ public class SystemHardwareScanner {
 
             String result = displayInfoBuilder.toString();
             displayInfo.set(result);
-        } catch (Exception e) {
-            String error = "Displays: Error - " + e.getMessage();
-            displayInfo.set(error);
+        } catch (HeadlessException e) {
+            // Système sans interface graphique
+            displayInfo.set("Displays: Headless environment detected");
+        } catch (AWTError e) {
+            // Erreur native AWT
+            displayInfo.set("Displays: Graphics subsystem error - " + e.getMessage());
         }
     }
 
@@ -180,35 +192,64 @@ public class SystemHardwareScanner {
 
     // --- Détection OpenGL (Thread-Safe, doit être appelé depuis le thread OpenGL) ---
     public void detectOpenGLInfo() {
-        SplashWindow splashWindow = splashWindowRef.get();
-        if (splashWindow == null) {
-            String result = "OpenGL: SplashWindow not provided";
-            openglInfo.set(result);
-            openglLatch.countDown();
-            return;
-        }
-
         try {
+            // Vérifier d'abord si on a un contexte OpenGL valide
+            if (!GL.getCapabilities().OpenGL11) {
+                openglInfo.set("OpenGL: No valid OpenGL 1.1+ context available");
+                openglLatch.countDown();
+                return;
+            }
+
             String vendor = glGetString(GL_VENDOR);
             String renderer = glGetString(GL_RENDERER);
             String version = glGetString(GL_VERSION);
             String glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+            // Vérifier les erreurs OpenGL manuellement
+            int error = glGetError();
+            if (error != GL_NO_ERROR) {
+                String errorMsg = getOpenGLErrorString(error);
+                openglInfo.set("OpenGL: Error " + error + " - " + errorMsg);
+                openglLatch.countDown();
+                return;
+            }
+
+            // Vérifier si les strings sont nulles (contexte corrompu)
+            if (vendor == null || renderer == null || version == null) {
+                openglInfo.set("OpenGL: Invalid context - null strings returned");
+                openglLatch.countDown();
+                return;
+            }
+
             String result = String.format(
                     "OpenGL:\n- Vendor: %s\n- Renderer: %s\n- Version: %s\n- GLSL: %s",
-                    vendor != null ? vendor : "Unknown",
-                    renderer != null ? renderer : "Unknown",
-                    version != null ? version : "Unknown",
-                    glslVersion != null ? glslVersion : "Unknown"
+                    vendor, renderer, version,
+                    glslVersion != null ? glslVersion : "Not available"
             );
 
             openglInfo.set(result);
             openglLatch.countDown();
-        } catch (Exception e) {
-            String error = "OpenGL: Error - " + e.getMessage();
-            openglInfo.set(error);
+
+        } catch (IllegalStateException e) {
+            // Pas de contexte OpenGL actif
+            openglInfo.set("OpenGL: No active OpenGL context");
+            openglLatch.countDown();
+        } catch (RuntimeException e) {
+            // Crash JVM, corruption mémoire, driver crash
+            openglInfo.set("OpenGL: Runtime error - " + e.getMessage());
             openglLatch.countDown();
         }
+    }
+
+    private String getOpenGLErrorString(int error) {
+        return switch (error) {
+            case GL_INVALID_ENUM -> "Invalid enumeration";
+            case GL_INVALID_VALUE -> "Invalid value";
+            case GL_INVALID_OPERATION -> "Invalid operation";
+            case GL_OUT_OF_MEMORY -> "Out of memory";
+            case GL_INVALID_FRAMEBUFFER_OPERATION -> "Invalid framebuffer operation";
+            default -> "Unknown error";
+        };
     }
 
     // --- Méthode pour attendre la détection OpenGL ---
@@ -291,8 +332,14 @@ public class SystemHardwareScanner {
             writer.write("OpenGL=" + openglInfo.get().replace("\n", "\\n") + "\n");
             writer.write("DetectionComplete=" + detectionComplete + "\n");
             System.out.println("Hardware config saved to: " + filePath);
-        } catch (java.io.IOException e) {
-            System.err.println("Error saving config: " + e.getMessage());
+        }  catch (FileNotFoundException e) {
+            System.err.println("Config file path not found: " + filePath);
+        } catch (AccessDeniedException e) {
+            System.err.println("Permission denied writing config to: " + filePath);
+        } catch (IOException e) {
+            System.err.println("I/O error saving config: " + e.getMessage());
+        } catch (SecurityException e) {
+            System.err.println("Security policy prevents config file creation");
         }
     }
 
