@@ -102,7 +102,6 @@ public class SystemHardwareScanner {
                 var displays = hardware.getDisplays();
                 if (!displays.isEmpty()) {
                     for (int i = 0; i < displays.size(); i++) {
-                        Display display = displays.get(i);
                         // OSHI peut avoir des limitations selon la plateforme
                         displayInfoBuilder.append(String.format(
                                 "- Display %d: OSHI detected\n", i + 1
