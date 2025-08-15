@@ -1,11 +1,14 @@
 package systeme.startup;
 
+import systeme.filesystem.GameDirectoryManager;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Startup {
+    GameDirectoryManager gameDirectoryManager = new GameDirectoryManager();
     private final SplashWindow splash;
     private SystemHardwareScanner systemHardwareScanner;
     private final SplashRenderer splashRenderer;
@@ -40,6 +43,7 @@ public class Startup {
     public void run() {
         init();
         loop();
+        gameDirectoryManager.createGameDirectories(systemHardwareScanner);
         cleanup();
     }
 

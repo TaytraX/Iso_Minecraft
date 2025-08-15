@@ -45,13 +45,13 @@ public class SystemHardwareScanner {
     private void detectOS() {
         try {
             osInfo = String.format(
-                    "OS: %s %s %s",
+                    "%s %s %s",
                     os.getFamily(),
                     os.getVersionInfo().getVersion(),
                     os.getBitness() + "-bit"
             );
         } catch (Exception e) {
-            osInfo = "OS: Error - " + e.getMessage();
+            osInfo = "Error - " + e.getMessage();
         }
     }
 
@@ -60,13 +60,13 @@ public class SystemHardwareScanner {
         try {
             CentralProcessor processor = hardware.getProcessor();
             cpuInfo = String.format(
-                    "CPU: %s (%d cores, %d threads)",
+                    "%s (%d cores, %d threads)",
                     processor.getProcessorIdentifier().getName().trim(),
                     processor.getPhysicalProcessorCount(),
                     processor.getLogicalProcessorCount()
             );
         } catch (Exception e) {
-            cpuInfo = "CPU: Error - " + e.getMessage();
+            cpuInfo = "Error - " + e.getMessage();
         }
     }
 
@@ -77,12 +77,12 @@ public class SystemHardwareScanner {
             long totalMemory = memory.getTotal();
             long availableMemory = memory.getAvailable();
             ramInfo = String.format(
-                    "RAM: %.2f GB total (%.2f GB available)",
+                    "%.2f GB total (%.2f GB available)",
                     totalMemory / (1024.0 * 1024 * 1024),
                     availableMemory / (1024.0 * 1024 * 1024)
             );
         } catch (Exception e) {
-            ramInfo = "RAM: Error - " + e.getMessage();
+            ramInfo = "Error - " + e.getMessage();
         }
     }
 
@@ -136,10 +136,10 @@ public class SystemHardwareScanner {
             displayInfo = displayInfoBuilder.toString();
         } catch (HeadlessException e) {
             // Système sans interface graphique
-            displayInfo = "Displays: Headless environment detected";
+            displayInfo = "Headless environment detected";
         } catch (AWTError e) {
             // Erreur native AWT
-            displayInfo = "Displays: Graphics subsystem error - " + e.getMessage();
+            displayInfo = "Graphics subsystem error - " + e.getMessage();
         }
     }
 
