@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 public class GameDirectoryManager {
 
     private Path determineGameDirectory(SystemHardwareScanner scanner) {
-        String os = scanner.getOsInfo().split(" ")[0].toLowerCase();
+        String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");
 
         return switch (os) {

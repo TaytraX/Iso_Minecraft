@@ -48,6 +48,8 @@ dependencies {
     implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
 
     implementation("com.github.oshi:oshi-core:6.6.5")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
+
     implementation("org.lwjgl", "lwjgl")
     implementation("org.lwjgl", "lwjgl-fmod")
     implementation("org.lwjgl", "lwjgl-glfw")
