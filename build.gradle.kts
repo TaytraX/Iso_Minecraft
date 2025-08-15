@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    testImplementation(platform("org.junit:junit-bom:5.10.0"))
+    testImplementation(platform("org.junit:junit-bom:6.04.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
