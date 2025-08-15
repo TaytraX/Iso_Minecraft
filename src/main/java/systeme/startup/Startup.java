@@ -6,10 +6,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Startup {
-    private SplashWindow splash;
+    private final SplashWindow splash;
     private SystemHardwareScanner systemHardwareScanner;
-    private SplashRenderer splashRenderer;
-    private ExecutorService executorService;
+    private final SplashRenderer splashRenderer;
+    private final ExecutorService executorService;
     private CompletableFuture<Void> detectionFuture;
 
     public Startup() {

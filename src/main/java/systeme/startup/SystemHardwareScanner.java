@@ -23,12 +23,12 @@ public class SystemHardwareScanner {
     private final AtomicReference<SplashWindow> splashWindowRef;
 
     // Results thread-safe storage
-    private final AtomicReference<String> cpuInfo = new AtomicReference<>("Detecting...");
-    private final AtomicReference<String> ramInfo = new AtomicReference<>("Detecting...");
-    private final AtomicReference<String> displayInfo = new AtomicReference<>("Detecting...");
-    private final AtomicReference<String> gpuInfo = new AtomicReference<>("Detecting...");
-    private final AtomicReference<String> openglInfo = new AtomicReference<>("Waiting for OpenGL context...");
-    private final AtomicReference<String> osInfo = new AtomicReference<>("Detecting...");
+    private volatile String cpuInfo = "Detecting...";
+    private volatile String ramInfo = "Detecting...";
+    private volatile String displayInfo = "Detecting...";
+    private volatile String gpuInfo = "Detecting...";
+    private volatile String openglInfo = "Waiting for OpenGL context...";
+    private volatile String osInfo = "Detecting...";
 
     // Synchronization
     private final CountDownLatch openglLatch = new CountDownLatch(1);
@@ -44,16 +44,14 @@ public class SystemHardwareScanner {
     // --- Détection OS (Thread-Safe) ---
     private void detectOS() {
         try {
-            String result = String.format(
+            osInfo = String.format(
                     "OS: %s %s %s",
                     os.getFamily(),
                     os.getVersionInfo().getVersion(),
                     os.getBitness() + "-bit"
             );
-            osInfo.set(result);
         } catch (Exception e) {
-            String error = "OS: Error - " + e.getMessage();
-            osInfo.set(error);
+            osInfo = "OS: Error - " + e.getMessage();
         }
     }
 
@@ -61,16 +59,14 @@ public class SystemHardwareScanner {
     private void detectCPU() {
         try {
             CentralProcessor processor = hardware.getProcessor();
-            String result = String.format(
+            cpuInfo = String.format(
                     "CPU: %s (%d cores, %d threads)",
                     processor.getProcessorIdentifier().getName().trim(),
                     processor.getPhysicalProcessorCount(),
                     processor.getLogicalProcessorCount()
             );
-            cpuInfo.set(result);
         } catch (Exception e) {
-            String error = "CPU: Error - " + e.getMessage();
-            cpuInfo.set(error);
+            cpuInfo = "CPU: Error - " + e.getMessage();
         }
     }
 
@@ -80,15 +76,13 @@ public class SystemHardwareScanner {
             GlobalMemory memory = hardware.getMemory();
             long totalMemory = memory.getTotal();
             long availableMemory = memory.getAvailable();
-            String result = String.format(
+            ramInfo = String.format(
                     "RAM: %.2f GB total (%.2f GB available)",
                     totalMemory / (1024.0 * 1024 * 1024),
                     availableMemory / (1024.0 * 1024 * 1024)
             );
-            ramInfo.set(result);
         } catch (Exception e) {
-            String error = "RAM: Error - " + e.getMessage();
-            ramInfo.set(error);
+            ramInfo = "RAM: Error - " + e.getMessage();
         }
     }
 
@@ -112,7 +106,7 @@ public class SystemHardwareScanner {
                 // Plateforme non supportée par OSHI
                 System.out.println("OSHI display detection not supported, using AWT fallback");
             } catch (SecurityException e) {
-                displayInfo.set("Displays: Access denied to display configuration");
+                displayInfo = "Displays: Access denied to display configuration";
                 return;
             }
 
@@ -139,14 +133,13 @@ public class SystemHardwareScanner {
                 displayInfoBuilder.append("- AWT display detection also failed\n");
             }
 
-            String result = displayInfoBuilder.toString();
-            displayInfo.set(result);
+            displayInfo = displayInfoBuilder.toString();
         } catch (HeadlessException e) {
             // Système sans interface graphique
-            displayInfo.set("Displays: Headless environment detected");
+            displayInfo = "Displays: Headless environment detected";
         } catch (AWTError e) {
             // Erreur native AWT
-            displayInfo.set("Displays: Graphics subsystem error - " + e.getMessage());
+            displayInfo = "Displays: Graphics subsystem error - " + e.getMessage();
         }
     }
 
@@ -176,11 +169,9 @@ public class SystemHardwareScanner {
                 }
             }
 
-            String result = gpuInfoBuilder.toString();
-            gpuInfo.set(result);
+            gpuInfo = gpuInfoBuilder.toString();
         } catch (Exception e) {
-            String error = "GPU(s): Error - " + e.getMessage();
-            gpuInfo.set(error);
+            gpuInfo = "GPU(s): Error - " + e.getMessage();
         }
     }
 
@@ -189,7 +180,7 @@ public class SystemHardwareScanner {
         try {
             // Vérifier d'abord si on a un contexte OpenGL valide
             if (!GL.getCapabilities().OpenGL11) {
-                openglInfo.set("OpenGL: No valid OpenGL 1.1+ context available");
+                openglInfo = "OpenGL: No valid OpenGL 1.1+ context available";
                 openglLatch.countDown();
                 return;
             }
@@ -203,34 +194,32 @@ public class SystemHardwareScanner {
             int error = glGetError();
             if (error != GL_NO_ERROR) {
                 String errorMsg = getOpenGLErrorString(error);
-                openglInfo.set("OpenGL: Error " + error + " - " + errorMsg);
+                openglInfo = "OpenGL: Error " + error + " - " + errorMsg;
                 openglLatch.countDown();
                 return;
             }
 
             // Vérifier si les strings sont nulles (contexte corrompu)
             if (vendor == null || renderer == null || version == null) {
-                openglInfo.set("OpenGL: Invalid context - null strings returned");
+                openglInfo = "OpenGL: Invalid context - null strings returned";
                 openglLatch.countDown();
                 return;
             }
 
-            String result = String.format(
+            openglInfo = String.format(
                     "OpenGL:\n- Vendor: %s\n- Renderer: %s\n- Version: %s\n- GLSL: %s",
                     vendor, renderer, version,
                     glslVersion != null ? glslVersion : "Not available"
             );
-
-            openglInfo.set(result);
             openglLatch.countDown();
 
         } catch (IllegalStateException e) {
             // Pas de contexte OpenGL actif
-            openglInfo.set("OpenGL: No active OpenGL context");
+            openglInfo = "OpenGL: No active OpenGL context";
             openglLatch.countDown();
         } catch (RuntimeException e) {
             // Crash JVM, corruption mémoire, driver crash
-            openglInfo.set("OpenGL: Runtime error - " + e.getMessage());
+            openglInfo = "OpenGL: Runtime error - " + e.getMessage();
             openglLatch.countDown();
         }
     }
@@ -254,12 +243,12 @@ public class SystemHardwareScanner {
     // --- Affichage des résultats thread-safe ---
     public void printHardwareInfo() {
         System.out.println("=== Hardware Detection Results ===");
-        System.out.println(osInfo.get());
-        System.out.println(cpuInfo.get());
-        System.out.println(ramInfo.get());
-        System.out.println(displayInfo.get());
-        System.out.println(gpuInfo.get());
-        System.out.println(openglInfo.get());
+        System.out.println(osInfo);
+        System.out.println(cpuInfo);
+        System.out.println(ramInfo);
+        System.out.println(displayInfo);
+        System.out.println(gpuInfo);
+        System.out.println(openglInfo);
         System.out.println("==================================");
     }
 
@@ -295,35 +284,17 @@ public class SystemHardwareScanner {
         });
     }
 
-    // --- Méthode synchrone pour compatibilité ---
-    public void runDetection() {
-        detectOS();
-        detectCPU();
-        detectRAM();
-        detectDisplays();
-        detectGPU();
-
-        // Pour OpenGL, on doit être sur le bon thread
-        if (Thread.currentThread().getName().contains("main") ||
-                Thread.currentThread().getName().contains("OpenGL")) {
-            detectOpenGLInfo();
-        }
-
-        detectionComplete = true;
-        printHardwareInfo();
-    }
-
     // --- Sauvegarde thread-safe dans un fichier .config ---
-    public synchronized void saveToConfigFile(String filePath) {
+    public void saveToConfigFile(String filePath) {
         try (java.io.FileWriter writer = new java.io.FileWriter(filePath)) {
             writer.write("# Hardware Detection Results\n");
             writer.write("# Generated on: " + java.time.LocalDateTime.now() + "\n\n");
-            writer.write("OS=" + osInfo.get().replace("\n", "\\n") + "\n");
-            writer.write("CPU=" + cpuInfo.get().replace("\n", "\\n") + "\n");
-            writer.write("RAM=" + ramInfo.get().replace("\n", "\\n") + "\n");
-            writer.write("Displays=" + displayInfo.get().replace("\n", "\\n") + "\n");
-            writer.write("GPU=" + gpuInfo.get().replace("\n", "\\n") + "\n");
-            writer.write("OpenGL=" + openglInfo.get().replace("\n", "\\n") + "\n");
+            writer.write("OS=" + osInfo.replace("\n", "\\n") + "\n");
+            writer.write("CPU=" + cpuInfo.replace("\n", "\\n") + "\n");
+            writer.write("RAM=" + ramInfo.replace("\n", "\\n") + "\n");
+            writer.write("Displays=" + displayInfo.replace("\n", "\\n") + "\n");
+            writer.write("GPU=" + gpuInfo.replace("\n", "\\n") + "\n");
+            writer.write("OpenGL=" + openglInfo.replace("\n", "\\n") + "\n");
             writer.write("DetectionComplete=" + detectionComplete + "\n");
             System.out.println("Hardware config saved to: " + filePath);
         }  catch (FileNotFoundException e) {
@@ -338,12 +309,12 @@ public class SystemHardwareScanner {
     }
 
     // --- Getters thread safe pour l'état ---
-    public String getOsInfo() { return osInfo.get(); }
-    public String getCpuInfo() { return cpuInfo.get(); }
-    public String getRamInfo() { return ramInfo.get(); }
-    public String getDisplayInfo() { return displayInfo.get(); }
-    public String getGpuInfo() { return gpuInfo.get(); }
-    public String getOpenglInfo() { return openglInfo.get(); }
+    public String getOsInfo() { return osInfo; }
+    public String getCpuInfo() { return cpuInfo; }
+    public String getRamInfo() { return ramInfo; }
+    public String getDisplayInfo() { return displayInfo; }
+    public String getGpuInfo() { return gpuInfo; }
+    public String getOpenglInfo() { return openglInfo; }
     public boolean isDetectionComplete() { return detectionComplete; }
 
     // --- Méthode pour déclencher la détection OpenGL depuis le thread principal ---
