@@ -2,14 +2,13 @@ package systeme.filesystem;
 
 import systeme.startup.SystemHardwareScanner;
 
-import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class GameDirectoryManager {
 
     private Path determineGameDirectory(SystemHardwareScanner scanner) {
-        scanner = new SystemHardwareScanner(null);
         String os = scanner.getOsInfo().split(" ")[0].toLowerCase();
         String userHome = System.getProperty("user.home");
 
@@ -23,18 +22,26 @@ public class GameDirectoryManager {
         };
     }
 
-    public File createGameDirectories(SystemHardwareScanner scanner) {
-        File gameDirectoryFile = determineGameDirectory(scanner).toFile();
+    public void createGameDirectories(SystemHardwareScanner scanner) {
+        Path gameRoot = determineGameDirectory(scanner);
 
-        if (!gameDirectoryFile.exists()) {
+        createDirectories(gameRoot);
+
+        createDirectories(gameRoot.resolve("saves"));
+        createDirectories(gameRoot.resolve("shaderpacks"));
+        createDirectories(gameRoot.resolve("texturepacks"));
+        createDirectories(gameRoot.resolve("mods"));
+        createDirectories(gameRoot.resolve("config"));
+    }
+
+    public void createDirectories(Path path) {
+        if (!Files.exists(path)) {
             try {
-                gameDirectoryFile.mkdirs();
+                Files.createDirectories(path);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         }
-
-        return gameDirectoryFile;
     }
 
     public void getSavesDirectory() {
