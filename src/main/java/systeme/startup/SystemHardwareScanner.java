@@ -97,7 +97,7 @@ public class SystemHardwareScanner {
         try {
             StringBuilder displayInfoBuilder = new StringBuilder("Displays:\n");
 
-            // Méthode 1: OSHI (peut ne pas marcher sur toutes les plateformes)
+            // Méthode 1 : OSHI (peut ne pas marcher sur toutes les plateformes)
             try {
                 var displays = hardware.getDisplays();
                 if (!displays.isEmpty()) {
@@ -249,9 +249,13 @@ public class SystemHardwareScanner {
                 detectionComplete = true;
                 System.out.println("All detection complete!");
                 printHardwareInfo();
-            } catch (Exception e) {
-                System.err.println("Error during hardware detection: " + e.getMessage());
-                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // bonne pratique
+                System.err.println("Detection was interrupted.");
+            } catch (IllegalArgumentException  | IllegalStateException e) {
+                System.err.println("OpenGL detection failed: " + e.getMessage());
+            } catch (RuntimeException e) {
+                System.err.println("Hardware detection error: " + e.getMessage());
             }
         });
     }
@@ -292,7 +296,7 @@ public class SystemHardwareScanner {
         }
     }
 
-    // --- Getters thread-safe pour l'état ---
+    // --- Getters thread safe pour l'état ---
     public String getOsInfo() { return osInfo.get(); }
     public String getCpuInfo() { return cpuInfo.get(); }
     public String getRamInfo() { return ramInfo.get(); }
