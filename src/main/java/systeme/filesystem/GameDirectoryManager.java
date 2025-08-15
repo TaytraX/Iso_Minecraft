@@ -8,22 +8,22 @@ import java.nio.file.Paths;
 
 public class GameDirectoryManager {
 
-    private Path determineGameDirectory(SystemHardwareScanner scanner) {
+    private static Path determineGameDirectory() {
         String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");
 
         return switch (os) {
-            case "windows" ->
+            case String s when s.contains("win") ->
                     Paths.get(System.getenv("APPDATA"), ".iso_minecraft");
-            case "macos" ->
+            case String s when s.contains("mac") ->
                     Paths.get(userHome, "Library", "Application Support", "iso_minecraft");
             default ->
                     Paths.get(userHome, ".iso_minecraft");
         };
     }
 
-    public void createGameDirectories(SystemHardwareScanner scanner) {
-        Path gameRoot = determineGameDirectory(scanner);
+    public void createGameDirectories() {
+        Path gameRoot = determineGameDirectory();
 
         createDirectories(gameRoot);
 

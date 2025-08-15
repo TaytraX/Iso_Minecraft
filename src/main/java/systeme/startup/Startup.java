@@ -43,7 +43,7 @@ public class Startup {
     public void run() {
         init();
         loop();
-        gameDirectoryManager.createGameDirectories(systemHardwareScanner);
+        gameDirectoryManager.createGameDirectories();
         cleanup();
     }
 
