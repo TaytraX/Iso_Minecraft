@@ -18,7 +18,6 @@ import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
 import static org.lwjgl.opengl.GL30.GL_INVALID_FRAMEBUFFER_OPERATION;
 
 public class SystemHardwareScanner {
-    private final SystemInfo systemInfo;
     private final HardwareAbstractionLayer hardware;
     private final OperatingSystem os;
     private final AtomicReference<SplashWindow> splashWindowRef;
@@ -36,21 +35,17 @@ public class SystemHardwareScanner {
     private volatile boolean detectionComplete = false;
 
     public SystemHardwareScanner(SplashWindow splashWindow) {
-        this.systemInfo = new SystemInfo();
+        SystemInfo systemInfo = new SystemInfo();
         this.hardware = systemInfo.getHardware();
         this.os = systemInfo.getOperatingSystem();
         this.splashWindowRef = new AtomicReference<>(splashWindow);
-    }
-
-    public SystemHardwareScanner() {
-        this(null);
     }
 
     // --- Détection OS (Thread-Safe) ---
     private void detectOS() {
         try {
             String result = String.format(
-                    "OS: %s %s (%s)",
+                    "OS: %s %s %s",
                     os.getFamily(),
                     os.getVersionInfo().getVersion(),
                     os.getBitness() + "-bit"
