@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL20.*;
@@ -16,17 +14,18 @@ public class Shader {
     private int programID;
     private int vertexShaderID;
     private int fragmentShaderID;
-    private final GameDirectoryManager gameDirectoryManager = new GameDirectoryManager();
-
-    private final Map<String, Integer> uniforms = new HashMap<>();
+    private final GameDirectoryManager gameDirectoryManager;
+    private final UniformManager uniforms;
 
     public Shader(String shaderName) {
+        gameDirectoryManager = new GameDirectoryManager();
+        uniforms = new UniformManager(programID);
 
         try {
             if (!tryLoadFromShaderpack(shaderName)) {
 
                 String sources = loadEmbeddedShader(shaderName);
-                parseUniformsFromShader(sources);
+                uniforms.parseUniformsFromShader(sources);
             }
         }catch (Exception e) {
             System.err.println("Erreur lors du chargement des shaders: " + e.getMessage());
@@ -58,8 +57,10 @@ public class Shader {
     }
 
     private boolean tryLoadFromShaderpack(String shaderName) throws IOException {
-        String packName = String.valueOf(getFirstShaderpackName());
-        if (packName == null) return false; // Aucun pack trouvé
+        Optional<String> packOpt = getFirstShaderpackName();
+
+        if (packOpt.isEmpty()) return false;
+        String packName = packOpt.get(); // Aucun pack trouvé
 
         Path externalVertexPath = gameDirectoryManager.getShaderpacksDirectory().toPath().resolve(packName + '/' + shaderName + ".vs.glsl");
         Path externalFragmentPath = gameDirectoryManager.getShaderpacksDirectory().toPath().resolve(packName + '/' + shaderName + ".fs.glsl");
@@ -69,6 +70,7 @@ public class Shader {
             String fragmentSource = Files.readString(externalFragmentPath);
 
             compile(vertexSource, fragmentSource);
+            uniforms.parseUniformsFromShader(vertexSource + "\n" + fragmentSource);
             return true;
         }
         return false;
@@ -112,14 +114,6 @@ public class Shader {
         }
     }
 
-    public void createUniform(String name) {
-        int location = glGetUniformLocation(programID, name);
-        if (location < 0) {
-            System.err.println("Uniform not found: " + name);
-        }
-        uniforms.put(name, location);
-    }
-
     private void loadDefaultShader() {
         // Crée un shader par défaut en hardcoded
         String defaultVertex = """
@@ -135,61 +129,6 @@ public class Shader {
         compile(defaultVertex, defaultFragment);
     }
 
-    private void parseUniformsFromShader(String source) {
-        // Parser les deux shaders
-        parseUniformsFromSource(source);
-    }
-
-    private void parseUniformsFromSource(String shaderSource) {
-        String[] lines = shaderSource.split("\n");
-
-        for (String line : lines) {
-            line = line.trim(); // Supprimer espaces
-
-            // Chercher les lignes qui commencent par "uniform"
-            if (line.startsWith("uniform") && !line.startsWith("//")) {
-                String uniformName = extractUniformName(line);
-                String uniformType = extractUniformType(line);
-                if (uniformName != null) {
-                    createUniform(uniformName);
-                    System.out.println("Uniform détecté : " + uniformName);
-                }
-            }
-        }
-    }
-
-    private String extractUniformType(String uniformLine) {
-        // Exemple : "uniform mat4 transformationMatrix;"
-        //           → extraire "transformationMatrix"
-
-        String[] parts = uniformLine.split("\\s+"); // Split sur espaces
-
-        if (parts.length > 2) {
-            // parts[0] = "uniform"
-            // parts[1] = "mat4" (type)
-            // parts[2] = "transformationMatrix;" (nom avec ;)
-            return parts[1];
-        }
-        return null;
-    }
-
-    private String extractUniformName(String uniformLine) {
-        // Exemple : "uniform mat4 transformationMatrix;"
-        //           → extraire "transformationMatrix"
-
-        String[] parts = uniformLine.split("\\s+"); // Split sur espaces
-
-        if (parts.length >= 3) {
-            // parts[0] = "uniform"
-            // parts[1] = "mat4" (type)
-            // parts[2] = "transformationMatrix;" (nom avec ;)
-
-            // Supprimer ;
-            return parts[2].replace(";", "");
-        }
-        return null;
-    }
-
     public void use() {
         glUseProgram(programID);
     }
@@ -200,7 +139,7 @@ public class Shader {
 
     public void cleanup() {
         stop();
-        uniforms.clear();
+        uniforms.cleanup();
         glDetachShader(programID, vertexShaderID);
         glDetachShader(programID, fragmentShaderID);
         glDeleteShader(vertexShaderID);
