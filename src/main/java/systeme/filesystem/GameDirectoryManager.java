@@ -29,6 +29,8 @@ public class GameDirectoryManager {
         createDirectories(gameRoot);
 
         createDirectories(gameRoot.resolve("saves"));
+            createDirectories(gameRoot.resolve("saves/chunks"));
+            createDirectories(gameRoot.resolve("saves/state"));
         createDirectories(gameRoot.resolve("shaderpacks"));
         createDirectories(gameRoot.resolve("texturepacks"));
         createDirectories(gameRoot.resolve("config"));

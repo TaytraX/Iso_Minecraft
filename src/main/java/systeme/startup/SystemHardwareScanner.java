@@ -89,7 +89,7 @@ public class SystemHardwareScanner {
     // --- Détection des écrans (Thread-Safe, utilise AWT comme fallback) ---
     public void detectDisplays() {
         try {
-            StringBuilder displayInfoBuilder = new StringBuilder("Displays:\n");
+            StringBuilder displayInfoBuilder = new StringBuilder("Displays:");
 
             // Méthode 1 : OSHI (peut ne pas marcher sur toutes les plateformes)
             try {
@@ -98,7 +98,7 @@ public class SystemHardwareScanner {
                     for (int i = 0; i < displays.size(); i++) {
                         // OSHI peut avoir des limitations selon la plateforme
                         displayInfoBuilder.append(String.format(
-                                "- Display %d: OSHI detected\n", i + 1
+                                "- Display %d: OSHI detected", i + 1
                         ));
                     }
                 }
@@ -115,13 +115,13 @@ public class SystemHardwareScanner {
                 GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
                 GraphicsDevice[] devices = ge.getScreenDevices();
 
-                if (displayInfoBuilder.toString().equals("Displays:\n")) {
+                if (displayInfoBuilder.toString().equals("Displays:")) {
                     // Si OSHI n'a rien trouvé, utilise AWT
                     for (int i = 0; i < devices.length; i++) {
                         GraphicsDevice device = devices[i];
                         DisplayMode mode = device.getDisplayMode();
                         displayInfoBuilder.append(String.format(
-                                "- Display %d: %dx%d @%dHz\n",
+                                "- Display %d: %dx%d @%dHz",
                                 i + 1,
                                 mode.getWidth(),
                                 mode.getHeight(),
@@ -130,7 +130,7 @@ public class SystemHardwareScanner {
                     }
                 }
             } catch (Exception e) {
-                displayInfoBuilder.append("- AWT display detection also failed\n");
+                displayInfoBuilder.append("- AWT display detection also failed");
             }
 
             displayInfo = displayInfoBuilder.toString();
@@ -146,7 +146,7 @@ public class SystemHardwareScanner {
     // --- Détection GPU (Thread-Safe, version simplifiée) ---
     public void detectGPU() {
         try {
-            StringBuilder gpuInfoBuilder = new StringBuilder("GPU(s):\n");
+            StringBuilder gpuInfoBuilder = new StringBuilder("GPU(s):");
             var cards = hardware.getGraphicsCards();
 
             if (cards.isEmpty()) {
@@ -207,7 +207,7 @@ public class SystemHardwareScanner {
             }
 
             openglInfo = String.format(
-                    "OpenGL:\n- Vendor: %s\n- Renderer: %s\n- Version: %s\n- GLSL: %s",
+                    "OpenGL:- Vendor: %s- Renderer: %s- Version: %s- GLSL: %s",
                     vendor, renderer, version,
                     glslVersion != null ? glslVersion : "Not available"
             );
@@ -289,13 +289,13 @@ public class SystemHardwareScanner {
         try (java.io.FileWriter writer = new java.io.FileWriter(filePath)) {
             writer.write("# Hardware Detection Results\n");
             writer.write("# Generated on: " + java.time.LocalDateTime.now() + "\n\n");
-            writer.write("OS=" + osInfo.replace("\n", "\\n") + "\n");
-            writer.write("CPU=" + cpuInfo.replace("\n", "\\n") + "\n");
-            writer.write("RAM=" + ramInfo.replace("\n", "\\n") + "\n");
-            writer.write("Displays=" + displayInfo.replace("\n", "\\n") + "\n");
-            writer.write("GPU=" + gpuInfo.replace("\n", "\\n") + "\n");
-            writer.write("OpenGL=" + openglInfo.replace("\n", "\\n") + "\n");
-            writer.write("DetectionComplete=" + detectionComplete + "\n");
+            writer.write("OS = " + osInfo.replace("\n", "\\n") + "\n");
+            writer.write("CPU = " + cpuInfo.replace("\n", "\\n") + "\n");
+            writer.write("RAM = " + ramInfo.replace("\n", "\\n") + "\n");
+            writer.write("Displays = " + displayInfo.replace("\n", "\\n") + "\n");
+            writer.write("GPU = " + gpuInfo.replace("\n", "\\n"));
+            writer.write("OpenGL = " + openglInfo.replace("\n", "\\n") + "\n");
+            writer.write("DetectionComplete =" + detectionComplete + "\n");
             System.out.println("Hardware config saved to: " + filePath);
         }  catch (FileNotFoundException e) {
             System.err.println("Config file path not found: " + filePath);
