@@ -2,6 +2,7 @@ package systeme.filesystem;
 
 import systeme.startup.SystemHardwareScanner;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +31,6 @@ public class GameDirectoryManager {
         createDirectories(gameRoot.resolve("saves"));
         createDirectories(gameRoot.resolve("shaderpacks"));
         createDirectories(gameRoot.resolve("texturepacks"));
-        createDirectories(gameRoot.resolve("mods"));
         createDirectories(gameRoot.resolve("config"));
     }
 
@@ -44,23 +44,19 @@ public class GameDirectoryManager {
         }
     }
 
-    public void getSavesDirectory() {
-
+    public File getSavesDirectory() {
+        return determineGameDirectory().resolve("saves").toFile();
     }
 
-    public void getShaderpacksDirectory() {
-
+    public File getShaderpacksDirectory() {
+        return determineGameDirectory().resolve("shaderpacks").toFile();
     }
 
-    public void getTexturePacksDirectory() {
-
+    public File getTexturePacksDirectory() {
+        return determineGameDirectory().resolve("texturepacks").toFile();
     }
 
-    public void getModsDirectory() {
-
-    }
-
-    public void getConfigDirectory() {
-
+    public File getConfigDirectory() {
+        return determineGameDirectory().resolve("config").toFile();
     }
 }
