@@ -1,5 +1,6 @@
 package systeme.startup;
 
+import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
 import render.loader.Shader;
 import render.loader.Texture;
@@ -28,15 +29,30 @@ public class SplashRenderer {
     private final Texture texture;
 
     public SplashRenderer() {
+        System.out.println("Creating shader...");
         try {
             shader = new Shader("splash");
+            System.out.println("Shader created successfully");
         } catch (Exception e) {
+            System.err.println("Shader creation failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
+
+        System.out.println("Creating texture...");
         try {
             texture = new Texture("splash");
-            initialize();
+            System.out.println("Texture created successfully");
         } catch (Exception e) {
+            System.err.println("Texture creation failed: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Initializing VAO...");
+        try {
+            initialize();
+            System.out.println("VAO initialized successfully");
+        } catch (Exception e) {
+            System.err.println("VAO initialization failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
@@ -77,18 +93,18 @@ public class SplashRenderer {
 
         glBindVertexArray(VAO);
 
-        glBindBuffer(GL30C.GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL30C.GL_ARRAY_BUFFER, vertexBuffer, GL30C.GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 2, GL30C.GL_FLOAT, false, 0, 0);
+        glBindBuffer(GL30.GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL30.GL_ARRAY_BUFFER, vertexBuffer, GL30.GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL30.GL_FLOAT, false, 0, 0);
         glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL30C.GL_ARRAY_BUFFER, textureVBO);
-        glBufferData(GL30C.GL_ARRAY_BUFFER, textureBuffer, GL30C.GL_STATIC_DRAW);
+        glBindBuffer(GL30.GL_ARRAY_BUFFER, textureVBO);
+        glBufferData(GL30.GL_ARRAY_BUFFER, textureBuffer, GL30.GL_STATIC_DRAW);
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
         glEnableVertexAttribArray(1);
 
-        glBindBuffer(GL30C.GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL30C.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30C.GL_STATIC_DRAW);
+        glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30.GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }

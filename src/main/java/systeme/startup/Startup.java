@@ -2,6 +2,7 @@ package systeme.startup;
 
 import systeme.filesystem.GameDirectoryManager;
 
+import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +29,8 @@ public class Startup {
     public void init() {
         System.out.println("Initializing Splash Window...");
         splash.init();
+
+        System.out.println("Initializing Splash Renderer...");
         splashRenderer = new SplashRenderer();
 
         System.out.println("Starting hardware detection...");
