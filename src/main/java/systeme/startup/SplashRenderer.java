@@ -8,6 +8,9 @@ import systeme.exception.ShaderCompilationException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL11C.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11C.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11C.glDrawElements;
@@ -27,7 +30,7 @@ public class SplashRenderer {
     public SplashRenderer() {
         try {
             shader = new Shader("splash");
-        } catch (ShaderCompilationException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         try {

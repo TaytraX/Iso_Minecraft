@@ -21,6 +21,7 @@ public class Shader {
 
     public Shader(String shaderName) throws ShaderCompilationException {
         gameDirectoryManager = new GameDirectoryManager();
+        uniforms = new UniformManager(0);
 
         try {
             if (!tryLoadFromShaderpack(shaderName)) {
