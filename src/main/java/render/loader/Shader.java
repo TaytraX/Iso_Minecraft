@@ -1,9 +1,11 @@
 package render.loader;
 
+import systeme.exception.ShaderCompilationException;
 import systeme.filesystem.GameDirectoryManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -17,18 +19,29 @@ public class Shader {
     private final GameDirectoryManager gameDirectoryManager;
     private UniformManager uniforms;
 
-    public Shader(String shaderName) {
+    public Shader(String shaderName) throws ShaderCompilationException {
         gameDirectoryManager = new GameDirectoryManager();
 
         try {
             if (!tryLoadFromShaderpack(shaderName)) {
                 String sources = loadEmbeddedShader(shaderName);
-
-                uniforms = new UniformManager(programID);
                 uniforms.parseUniformsFromShader(sources);
             }
-        }catch (Exception e) {
-            System.err.println("Erreur lors du chargement des shaders: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Erreur de fichier shader '" + shaderName + "': " + e.getMessage());
+            loadDefaultShader();
+        } catch (ShaderCompilationException e) {
+            System.err.println("=== SHADER ERROR ===");
+            System.err.println("Type: " + e.getShaderType());
+            System.err.println("Error: " + e.getMessage());
+
+            loadDefaultShader();
+        } catch (RuntimeException e) {
+            System.err.println("Erreur OpenGL shader '" + shaderName + "': " + e.getMessage());
+            loadDefaultShader();
+        } catch (Exception e) { // Fallback pour le reste
+            System.err.println("Erreur inattendue shader '" + shaderName + "': " + e.getMessage());
+            e.printStackTrace(); // Pour débugger les cas inconnus
             loadDefaultShader();
         }
     }
@@ -44,19 +57,30 @@ public class Shader {
         }
     }
 
-    private String loadEmbeddedShader(String shaderName) throws IOException {
-        InputStream vertexInputStream = getClass().getResourceAsStream("/shaders/" + shaderName + ".vs.glsl");
-        String vertexSource = vertexInputStream != null ? new String(vertexInputStream.readAllBytes()) : null;
+    private String loadEmbeddedShader(String shaderName) throws IOException, ShaderCompilationException {
+        String vertexSource;
+        String fragmentSource;
 
-        InputStream fragmentInputStream = getClass().getResourceAsStream("/shaders/" + shaderName + ".fs.glsl");
-        String fragmentSource = fragmentInputStream != null ? new String(fragmentInputStream.readAllBytes()) : null;
+        // Try-with-resources pour auto-close
+        try (InputStream vertexInputStream = getClass().getResourceAsStream("/shaders/" + shaderName + ".vs.glsl")) {
+            if (vertexInputStream == null) {
+                throw new IOException("Vertex shader file not found: " + shaderName + ".vs.glsl");
+            }
+            vertexSource = new String(vertexInputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
-        compile(vertexSource, fragmentSource);
+        try (InputStream fragmentInputStream = getClass().getResourceAsStream("/shaders/" + shaderName + ".fs.glsl")) {
+            if (fragmentInputStream == null) {
+                throw new IOException("Fragment shader file not found: " + shaderName + ".fs.glsl");
+            }
+            fragmentSource = new String(fragmentInputStream.readAllBytes(), StandardCharsets.UTF_8);
+        }
 
+        compile(vertexSource, fragmentSource); // Peut throw ShaderCompilationException
         return vertexSource + "\n" + fragmentSource;
     }
 
-    private boolean tryLoadFromShaderpack(String shaderName) throws IOException {
+    private boolean tryLoadFromShaderpack(String shaderName) throws IOException, ShaderCompilationException {
         Optional<String> packOpt = getFirstShaderpackName();
 
         if (packOpt.isEmpty()) return false;
@@ -76,45 +100,58 @@ public class Shader {
         return false;
     }
 
-    public void compile(String vertexSource, String fragmentSource) {
-        // Compiler le vertex shader
+    public void compile(String vertexSource, String fragmentSource) throws ShaderCompilationException {
+        // Vertex shader
         vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertexShaderID, vertexSource);
         glCompileShader(vertexShaderID);
 
         if (glGetShaderi(vertexShaderID, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Erreur vertex shader: " + glGetShaderInfoLog(vertexShaderID));
-            return;
+            String error = glGetShaderInfoLog(vertexShaderID);
+            throw new ShaderCompilationException(
+                    "Vertex shader compilation failed: " + error,
+                    "vertex",
+                    vertexSource
+            );
         }
 
-        // Compiler le fragment shader
+        // Fragment shader
         fragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragmentShaderID, fragmentSource);
         glCompileShader(fragmentShaderID);
 
         if (glGetShaderi(fragmentShaderID, GL_COMPILE_STATUS) == GL_FALSE) {
-            System.err.println("Erreur fragment shader: " + glGetShaderInfoLog(fragmentShaderID));
-            return;
+            String error = glGetShaderInfoLog(fragmentShaderID);
+            throw new ShaderCompilationException(
+                    "Fragment shader compilation failed: " + error,
+                    "fragment",
+                    fragmentSource
+            );
         }
 
-        // Créer le programme
+        // Linking
         programID = glCreateProgram();
         glAttachShader(programID, vertexShaderID);
         glAttachShader(programID, fragmentShaderID);
         glLinkProgram(programID);
 
         if (glGetProgrami(programID, GL_LINK_STATUS) == GL_FALSE) {
-            System.err.println("Erreur linking: " + glGetProgramInfoLog(programID));
-            return;
+            String error = glGetProgramInfoLog(programID);
+            throw new ShaderCompilationException(
+                    "Shader linking failed: " + error,
+                    "program",
+                    vertexSource + "\n---\n" + fragmentSource
+            );
         }
 
+        // Validation (optionnelle en production)
         glValidateProgram(programID);
         if (glGetProgrami(programID, GL_VALIDATE_STATUS) == GL_FALSE) {
-            System.err.println("Erreur validation: " + glGetProgramInfoLog(programID));
+            System.out.println("Shader validation warning: " + glGetProgramInfoLog(programID));
         }
     }
 
-    private void loadDefaultShader() {
+    private void loadDefaultShader() throws ShaderCompilationException {
         // Crée un shader par défaut en hardcoded
         String defaultVertex = """
                 #version 330 core
@@ -127,6 +164,7 @@ public class Shader {
                 void main() { fragColor = vec4(1.0, 0.0, 1.0, 1.0); }"""; // Rose shocking
 
         compile(defaultVertex, defaultFragment);
+        uniforms = new UniformManager(programID);
     }
 
     public void use() {
