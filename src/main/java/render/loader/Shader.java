@@ -15,16 +15,16 @@ public class Shader {
     private int vertexShaderID;
     private int fragmentShaderID;
     private final GameDirectoryManager gameDirectoryManager;
-    private final UniformManager uniforms;
+    private UniformManager uniforms;
 
     public Shader(String shaderName) {
         gameDirectoryManager = new GameDirectoryManager();
-        uniforms = new UniformManager(programID);
 
         try {
             if (!tryLoadFromShaderpack(shaderName)) {
-
                 String sources = loadEmbeddedShader(shaderName);
+
+                uniforms = new UniformManager(programID);
                 uniforms.parseUniformsFromShader(sources);
             }
         }catch (Exception e) {

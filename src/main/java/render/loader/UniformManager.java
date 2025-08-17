@@ -2,6 +2,8 @@ package render.loader;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 
@@ -44,20 +46,13 @@ public class UniformManager {
     }
 
     String extractUniformName(String uniformLine) {
-        // Exemple : "uniform mat4 transformationMatrix;"
-        //           → extraire "transformationMatrix"
+        String parts = uniformLine.split("//")[0].trim();
 
-        String[] parts = uniformLine.split("\\s+"); // Split sur espaces
+        if (!parts.startsWith("uniform")) return null;
 
-        if (parts.length >= 3) {
-            // parts[0] = "uniform"
-            // parts[1] = "mat4" (type)
-            // parts[2] = "transformationMatrix;" (nom avec ;)
-
-            // Supprimer ;
-            return parts[2].replace(";", "");
-        }
-        return null;
+        Pattern pattern = Pattern.compile("uniform\\s+\\w+\\s+(\\w+)\\s*(?:\\[\\d+\\])?\\s*;");
+        Matcher matcher = pattern.matcher(parts);
+        return matcher.find() ? matcher.group(1) : null;
     }
 
     void cleanup() {
