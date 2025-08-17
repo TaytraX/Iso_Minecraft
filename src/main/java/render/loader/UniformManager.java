@@ -35,28 +35,12 @@ public class UniformManager {
             // Chercher les lignes qui commencent par "uniform"
             if (line.startsWith("uniform") && !line.startsWith("//")) {
                 String uniformName = extractUniformName(line);
-                String uniformType = extractUniformType(line);
                 if (uniformName != null) {
                     createUniform(uniformName);
                     System.out.println("Uniform détecté : " + uniformName);
                 }
             }
         }
-    }
-
-    String extractUniformType(String uniformLine) {
-        // Exemple : "uniform mat4 transformationMatrix;"
-        //           → extraire "transformationMatrix"
-
-        String[] parts = uniformLine.split("\\s+"); // Split sur espaces
-
-        if (parts.length > 2) {
-            // parts[0] = "uniform"
-            // parts[1] = "mat4" (type)
-            // parts[2] = "transformationMatrix;" (nom avec ;)
-            return parts[1];
-        }
-        return null;
     }
 
     String extractUniformName(String uniformLine) {
@@ -79,4 +63,5 @@ public class UniformManager {
     void cleanup() {
         uniforms.clear();
     }
+
 }
