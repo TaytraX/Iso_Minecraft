@@ -11,13 +11,12 @@ public class Startup {
     GameDirectoryManager gameDirectoryManager = new GameDirectoryManager();
     private final SplashWindow splash;
     private SystemHardwareScanner systemHardwareScanner;
-    private final SplashRenderer splashRenderer;
+    private SplashRenderer splashRenderer;
     private final ExecutorService executorService;
     private CompletableFuture<Void> detectionFuture;
 
     public Startup() {
         splash = new SplashWindow();
-        splashRenderer = new SplashRenderer();
         // Thread pool pour les tâches asynchrones
         executorService = Executors.newCachedThreadPool(r -> {
             Thread t = new Thread(r, "SystemHardwareScanner-Thread");
@@ -29,6 +28,7 @@ public class Startup {
     public void init() {
         System.out.println("Initializing Splash Window...");
         splash.init();
+        splashRenderer = new SplashRenderer();
 
         System.out.println("Starting hardware detection...");
         // Créer SystemHardwareScanner après l'initialisation de SplashWindow
@@ -36,8 +36,6 @@ public class Startup {
 
         // Lancer la détection asynchrone
         detectionFuture = systemHardwareScanner.runDetectionAsync();
-
-        //splashRenderer.init();
     }
 
     public void run() {
@@ -79,8 +77,7 @@ public class Startup {
     }
 
     public void render() {
-        // Le rendu basique est géré par splash.update()
-        // Ici on pourrait afficher le progrès de la détection
+        splashRenderer.render();
     }
 
     public void update() {
@@ -129,6 +126,11 @@ public class Startup {
                 executorService.shutdownNow();
                 Thread.currentThread().interrupt();
             }
+        }
+
+        // Dans cleanup() avant splash.cleanup() :
+        if (splashRenderer != null) {
+            splashRenderer.cleanup();
         }
 
         // Nettoyer la splash window

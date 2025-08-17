@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.*;
 
 public class UniformManager {
     private final Map<String, Integer> uniforms = new HashMap<>();
@@ -59,4 +59,31 @@ public class UniformManager {
         uniforms.clear();
     }
 
+    public void setFloat(String name, float value) {
+        Integer location = uniforms.get(name);
+        if (location != null) {
+            glUniform1f(location, value);
+        }
+    }
+
+    public void setVec2(String name, float x, float y) {
+        Integer location = uniforms.get(name);
+        if (location != null) {
+            glUniform2f(location, x, y);
+        }
+    }
+
+    public void setVec3(String name, float x, float y, float z) {
+        Integer location = uniforms.get(name);
+        if (location != null) {
+            glUniform3f(location, x, y, z);
+        }
+    }
+
+    public void setInt(String name, int value) {
+        Integer location = uniforms.get(name);
+        if (location != null) {
+            glUniform1i(location, value);
+        }
+    }
 }

@@ -167,6 +167,10 @@ public class Shader {
         uniforms = new UniformManager(programID);
     }
 
+    public UniformManager getUniforms() {
+        return uniforms;
+    }
+
     public void use() {
         glUseProgram(programID);
     }
