@@ -2,7 +2,6 @@ package systeme.startup;
 
 import systeme.filesystem.GameDirectoryManager;
 
-import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class Startup {
     GameDirectoryManager gameDirectoryManager = new GameDirectoryManager();
     private final SplashWindow splash;
-    private SystemHardwareScanner systemHardwareScanner;
+    private SystemHardwareScanner HardwareScanner;
     private SplashRenderer splashRenderer;
     private final ExecutorService executorService;
     private CompletableFuture<Void> detectionFuture;
@@ -35,10 +34,10 @@ public class Startup {
 
         System.out.println("Starting hardware detection...");
         // Créer SystemHardwareScanner après l'initialisation de SplashWindow
-        systemHardwareScanner = new SystemHardwareScanner(splash);
+        HardwareScanner = new SystemHardwareScanner(splash);
 
         // Lancer la détection asynchrone
-        detectionFuture = systemHardwareScanner.runDetectionAsync();
+        detectionFuture = HardwareScanner.runDetectionAsync();
     }
 
     public void run() {
@@ -59,7 +58,7 @@ public class Startup {
             // Déclencher la détection OpenGL après quelques frames
             // pour s'assurer que le contexte OpenGL est stable
             if (!openglDetectionTriggered && frameCount > 3) {
-                systemHardwareScanner.triggerOpenGLDetection();
+                HardwareScanner.triggerOpenGLDetection();
                 openglDetectionTriggered = true;
                 System.out.println("OpenGL detection triggered from main thread");
             }
@@ -72,7 +71,7 @@ public class Startup {
             }
 
             // Sortir de la boucle si la détection est terminée et qu'on a attendu un peu
-            if (systemHardwareScanner.isDetectionComplete() && frameCount > 300) {
+            if (HardwareScanner.isDetectionComplete() && frameCount > 300) {
                 System.out.println("Detection complete, exiting splash...");
                 break;
             }
@@ -88,12 +87,12 @@ public class Startup {
     }
 
     private void printDetectionProgress() {
-        if (!systemHardwareScanner.isDetectionComplete()) {
+        if (!HardwareScanner.isDetectionComplete()) {
             System.out.println("Detection in progress...");
-            System.out.println("- " + systemHardwareScanner.getCpuInfo());
-            System.out.println("- " + systemHardwareScanner.getRamInfo());
-            System.out.println("- " + systemHardwareScanner.getGpuInfo());
-            System.out.println("- " + systemHardwareScanner.getOpenglInfo());
+            System.out.println("- " + HardwareScanner.getCpuInfo());
+            System.out.println("- " + HardwareScanner.getRamInfo());
+            System.out.println("- " + HardwareScanner.getGpuInfo());
+            System.out.println("- " + HardwareScanner.getOpenglInfo());
         }
     }
 
@@ -112,8 +111,8 @@ public class Startup {
         }
 
         // Sauvegarder la configuration détectée
-        if (systemHardwareScanner != null) {
-            systemHardwareScanner.saveToConfigFile("hardware_config.properties");
+        if (HardwareScanner != null) {
+            HardwareScanner.saveToConfigFile("hardware_config.properties");
         }
 
         // Arrêter l'ExecutorService proprement
@@ -146,10 +145,10 @@ public class Startup {
 
     // Méthodes utilitaires pour accéder aux informations de détection
     public SystemHardwareScanner getDetectionTask() {
-        return systemHardwareScanner;
+        return HardwareScanner;
     }
 
     public boolean isDetectionComplete() {
-        return systemHardwareScanner != null && systemHardwareScanner.isDetectionComplete();
+        return HardwareScanner != null && HardwareScanner.isDetectionComplete();
     }
 }

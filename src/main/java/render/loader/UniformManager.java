@@ -17,9 +17,6 @@ public class UniformManager {
 
     void createUniform(String name) {
         int location = glGetUniformLocation(programID, name);
-        if (location < 0) {
-            System.err.println("Uniform not found: " + name);
-        }
         uniforms.put(name, location);
     }
 

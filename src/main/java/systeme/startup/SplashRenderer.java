@@ -1,11 +1,8 @@
 package systeme.startup;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL30C;
 import render.loader.Shader;
 import render.loader.Texture;
-import systeme.exception.ShaderCompilationException;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -21,26 +18,28 @@ import static org.lwjgl.opengl.GL15C.glBindBuffer;
 import static org.lwjgl.opengl.GL15C.glBufferData;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
+import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30C.glBindVertexArray;
 import static org.lwjgl.opengl.GL30C.glGenVertexArrays;
 
 public class SplashRenderer {
     private int VAO;
-    private final Shader shader;
-    private final Texture texture;
+    int VBO, EBO, textureVBO;
+    private final Shader splashShader;
+    private final Texture splashTexture;
 
     public SplashRenderer() {
-        System.out.println("Creating shader...");
+        System.out.println("Creating splashShader...");
         try {
-            shader = new Shader("splash");
-            System.out.println("Shader created successfully. Program ID: " + shader.programID);
+            splashShader = new Shader("splash");
+            System.out.println("Shader created successfully. Program ID: " + splashShader.programID);
         } catch (Exception e) {
             System.err.println("Shader creation failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
 
         try {
-            texture = new Texture("splash");
+            splashTexture = new Texture("splash");
         } catch (Exception e) {
             System.err.println("Texture creation failed: " + e.getMessage());
             throw new RuntimeException(e);
@@ -54,17 +53,17 @@ public class SplashRenderer {
         }
     }
 
-    public void initialize() {
+    private void initialize() {
         VAO = glGenVertexArrays();
         if (VAO == 0) throw new RuntimeException("Failed to generate VAO");
 
-        int VBO = glGenBuffers();
+        VBO = glGenBuffers();
         if (VBO == 0) throw new RuntimeException("Failed to generate VBO");
 
-        int textureVBO = glGenBuffers();
+        textureVBO = glGenBuffers();
         if (textureVBO == 0) throw new RuntimeException("Failed to generate textureVBO");
 
-        int EBO = glGenBuffers();
+        EBO = glGenBuffers();
         if (EBO == 0) throw new RuntimeException("Failed to generate EBO");
 
 
@@ -74,20 +73,15 @@ public class SplashRenderer {
                  1.0f,  1.0f,
                 -1.0f,  1.0f
         };
-
         FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
         vertexBuffer.put(vertices).flip();
-
-
 
         int[] indices = {
                 0, 1, 2,
                 2, 3, 0
         };
-
         IntBuffer indexBuffer = BufferUtils.createIntBuffer(indices.length);
         indexBuffer.put(indices).flip();
-
 
         float[] textureCoords = {
                 0.0f, 1.0f,
@@ -119,22 +113,32 @@ public class SplashRenderer {
 
     public void render() {
         try {
-            shader.use();
+            glClear(GL_COLOR_BUFFER_BIT);
+            splashShader.use();
 
-            shader.getUniforms().setInt("splashTexture", 0);
+            splashShader.getUniforms().setInt("splashTexture", 0);
+
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
+            glBindTexture(GL_TEXTURE_2D, splashTexture.getTextureID());
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
             glBindVertexArray(0);
+
         } catch (Exception e) {
             System.err.println("Error rendering splash screen: " + e.getMessage());
-            e.printStackTrace();
         }
     }
+
     public void cleanup() {
-        shader.cleanup();
-        texture.cleanUp();
+
+        // Cleanup splash
+        glDeleteVertexArrays(VAO);
+        glDeleteBuffers(VBO);
+        glDeleteBuffers(EBO);
+        glDeleteBuffers(VBO);
+
+        splashShader.cleanup();
+        splashTexture.cleanUp();
     }
 }

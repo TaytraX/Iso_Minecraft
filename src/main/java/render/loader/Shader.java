@@ -41,7 +41,6 @@ public class Shader {
             loadDefaultShader();
         } catch (Exception e) { // Fallback pour le reste
             System.err.println("Erreur inattendue shader '" + shaderName + "': " + e.getMessage());
-            e.printStackTrace(); // Pour débugger les cas inconnus
             loadDefaultShader();
         }
     }

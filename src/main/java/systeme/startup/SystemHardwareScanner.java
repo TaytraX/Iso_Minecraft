@@ -310,6 +310,7 @@ public class SystemHardwareScanner {
 
     // --- Getters thread safe pour l'état ---
     public String getOsInfo() { return osInfo; }
+    public String getOSName() { return os.getFamily(); }
     public String getCpuInfo() { return cpuInfo; }
     public String getRamInfo() { return ramInfo; }
     public String getDisplayInfo() { return displayInfo; }
