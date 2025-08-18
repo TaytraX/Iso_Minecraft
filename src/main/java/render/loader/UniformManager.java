@@ -11,7 +11,7 @@ public class UniformManager {
     private final Map<String, Integer> uniforms = new HashMap<>();
     private final int programID;
 
-    UniformManager(int programID) {
+    public UniformManager(int programID) {
         this.programID = programID;
     }
 
@@ -38,8 +38,8 @@ public class UniformManager {
             if (line.startsWith("uniform") && !line.startsWith("//")) {
                 String uniformName = extractUniformName(line);
                 if (uniformName != null) {
-                    createUniform(uniformName);
                     System.out.println("Uniform détecté : " + uniformName);
+                    createUniform(uniformName);
                 }
             }
         }

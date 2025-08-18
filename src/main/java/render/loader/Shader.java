@@ -13,7 +13,7 @@ import java.util.Optional;
 import static org.lwjgl.opengl.GL20.*;
 
 public class Shader {
-    private int programID;
+    public int programID;
     private int vertexShaderID;
     private int fragmentShaderID;
     private final GameDirectoryManager gameDirectoryManager;
@@ -25,8 +25,7 @@ public class Shader {
 
         try {
             if (!tryLoadFromShaderpack(shaderName)) {
-                String sources = loadEmbeddedShader(shaderName);
-                uniforms.parseUniformsFromShader(sources);
+                loadEmbeddedShader(shaderName);
             }
         } catch (IOException e) {
             System.err.println("Erreur de fichier shader '" + shaderName + "': " + e.getMessage());
@@ -58,7 +57,7 @@ public class Shader {
         }
     }
 
-    private String loadEmbeddedShader(String shaderName) throws IOException, ShaderCompilationException {
+    private void loadEmbeddedShader(String shaderName) throws IOException, ShaderCompilationException {
         String vertexSource;
         String fragmentSource;
 
@@ -76,9 +75,10 @@ public class Shader {
             }
             fragmentSource = new String(fragmentInputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
+        String sources = vertexSource + "\n" + fragmentSource;
 
+        uniforms.parseUniformsFromShader(sources);
         compile(vertexSource, fragmentSource); // Peut throw ShaderCompilationException
-        return vertexSource + "\n" + fragmentSource;
     }
 
     private boolean tryLoadFromShaderpack(String shaderName) throws IOException, ShaderCompilationException {

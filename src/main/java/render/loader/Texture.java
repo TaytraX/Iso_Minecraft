@@ -3,6 +3,7 @@ package render.loader;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
 import systeme.filesystem.GameDirectoryManager;
 
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
@@ -120,21 +121,26 @@ public class Texture {
     private int loadTextureFromStream(InputStream inputStream) throws Exception {
         ByteBuffer imageBuffer;
         ByteBuffer textureBuffer;
+        int textureID;
 
+        // Lire InputStream en byte[]
+        byte[] imageData = inputStream.readAllBytes();
+
+        // Allouer dans le heap natif (pas la stack !)
+        imageBuffer = MemoryUtil.memAlloc(imageData.length);
+        imageBuffer.put(imageData);
+        imageBuffer.flip();
+
+        // Allouer les IntBuffer sur la stack (ça c’est ok)
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            // Convertir InputStream en ByteBuffer pour STBImage
-            byte[] imageData = inputStream.readAllBytes();
-            imageBuffer = stack.malloc(imageData.length);
-            imageBuffer.put(imageData);
-            imageBuffer.flip();
-
             IntBuffer w = stack.mallocInt(1);
             IntBuffer h = stack.mallocInt(1);
             IntBuffer comp = stack.mallocInt(1);
 
-            // STBImage charge depuis la mémoire
+            // Charger avec STBImage
             textureBuffer = STBImage.stbi_load_from_memory(imageBuffer, w, h, comp, 4);
             if (textureBuffer == null) {
+                MemoryUtil.memFree(imageBuffer);
                 throw new Exception("Could not load from memory: " + STBImage.stbi_failure_reason());
             }
 
@@ -142,18 +148,25 @@ public class Texture {
             this.height = h.get();
         }
 
-        // Même création texture OpenGL
-        int textureID = GL11.glGenTextures();
+        // Libérer l’image brute (on n’en a plus besoin)
+        MemoryUtil.memFree(imageBuffer);
+
+        // Génération texture OpenGL
+        textureID = GL11.glGenTextures();
         glBindTexture(GL_TEXTURE_2D, textureID);
         GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
         GL11.glTexImage2D(GL_TEXTURE_2D, 0, GL11.GL_RGBA, this.width, this.height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, textureBuffer);
 
+        // Filtrage
         GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 
+        // Libérer textureBuffer de stb_image
         STBImage.stbi_image_free(textureBuffer);
+
         return textureID;
     }
+
 
     public int createDefaultTexture() {
         // Texture 2x2 pixels blancs

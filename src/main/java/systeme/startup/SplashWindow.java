@@ -43,7 +43,7 @@ public class SplashWindow {
 
     private void createSplashWindow() {
         int width = 1200;
-        int height = 800;
+        int height = 700;
 
         window = glfwCreateWindow(width, height, "Iso_Minecraft", 0, 0);
 

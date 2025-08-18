@@ -1,5 +1,6 @@
 package systeme.startup;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GL30C;
 import render.loader.Shader;
@@ -32,16 +33,14 @@ public class SplashRenderer {
         System.out.println("Creating shader...");
         try {
             shader = new Shader("splash");
-            System.out.println("Shader created successfully");
+            System.out.println("Shader created successfully. Program ID: " + shader.programID);
         } catch (Exception e) {
             System.err.println("Shader creation failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
 
-        System.out.println("Creating texture...");
         try {
             texture = new Texture("splash");
-            System.out.println("Texture created successfully");
         } catch (Exception e) {
             System.err.println("Texture creation failed: " + e.getMessage());
             throw new RuntimeException(e);
@@ -50,61 +49,70 @@ public class SplashRenderer {
         System.out.println("Initializing VAO...");
         try {
             initialize();
-            System.out.println("VAO initialized successfully");
         } catch (Exception e) {
-            System.err.println("VAO initialization failed: " + e.getMessage());
             throw new RuntimeException(e);
         }
     }
 
     public void initialize() {
         VAO = glGenVertexArrays();
+        if (VAO == 0) throw new RuntimeException("Failed to generate VAO");
+
         int VBO = glGenBuffers();
-        int EBO = glGenBuffers();
+        if (VBO == 0) throw new RuntimeException("Failed to generate VBO");
+
         int textureVBO = glGenBuffers();
+        if (textureVBO == 0) throw new RuntimeException("Failed to generate textureVBO");
+
+        int EBO = glGenBuffers();
+        if (EBO == 0) throw new RuntimeException("Failed to generate EBO");
+
 
         float[] vertices = {
-                -1.0f, -1.0f,  // Bas gauche
-                1.0f, -1.0f,  // Bas droit
-                1.0f,  1.0f,  // Haut droit
-                -1.0f,  1.0f   // Haut gauche
+                -1.0f, -1.0f,
+                 1.0f, -1.0f,
+                 1.0f,  1.0f,
+                -1.0f,  1.0f
         };
 
-        FloatBuffer vertexBuffer = org.lwjgl.BufferUtils.createFloatBuffer(vertices.length);
+        FloatBuffer vertexBuffer = BufferUtils.createFloatBuffer(vertices.length);
         vertexBuffer.put(vertices).flip();
 
+
+
         int[] indices = {
-                0, 1, 2,  // Premier triangle
-                2, 3, 0   // Deuxième triangle
+                0, 1, 2,
+                2, 3, 0
         };
 
-        IntBuffer indexBuffer = org.lwjgl.BufferUtils.createIntBuffer(indices.length);
+        IntBuffer indexBuffer = BufferUtils.createIntBuffer(indices.length);
         indexBuffer.put(indices).flip();
 
-        float[] textureCoords = {
-                0.0f, 1.0f,  // Bas gauche -> correspond au haut de l'image
-                1.0f, 1.0f,  // Bas droit -> correspond au haut de l'image
-                1.0f, 0.0f,  // Haut droit -> correspond au bas de l'image
-                0.0f, 0.0f   // Haut gauche -> correspond au bas de l'image
-        };
 
-        FloatBuffer textureBuffer = org.lwjgl.BufferUtils.createFloatBuffer(textureCoords.length);
+        float[] textureCoords = {
+                0.0f, 1.0f,
+                1.0f, 1.0f,
+                1.0f, 0.0f,
+                0.0f, 0.0f
+        };
+        FloatBuffer textureBuffer = BufferUtils.createFloatBuffer(textureCoords.length);
         textureBuffer.put(textureCoords).flip();
+
 
         glBindVertexArray(VAO);
 
-        glBindBuffer(GL30.GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL30.GL_ARRAY_BUFFER, vertexBuffer, GL30.GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 2, GL30.GL_FLOAT, false, 0, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
         glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL30.GL_ARRAY_BUFFER, textureVBO);
-        glBufferData(GL30.GL_ARRAY_BUFFER, textureBuffer, GL30.GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, textureVBO);
+        glBufferData(GL_ARRAY_BUFFER, textureBuffer, GL_STATIC_DRAW);
         glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
         glEnableVertexAttribArray(1);
 
-        glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30.GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }
@@ -114,19 +122,17 @@ public class SplashRenderer {
             shader.use();
 
             shader.getUniforms().setInt("splashTexture", 0);
-
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
-
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
 
+            glBindVertexArray(0);
         } catch (Exception e) {
             System.err.println("Error rendering splash screen: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
     public void cleanup() {
         shader.cleanup();
         texture.cleanUp();
