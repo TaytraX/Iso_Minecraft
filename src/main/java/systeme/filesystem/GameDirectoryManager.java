@@ -24,14 +24,38 @@ public class GameDirectoryManager {
     public void createGameDirectories() {
         Path gameRoot = determineGameDirectory();
 
+        // Créer le dossier racine du jeu
         createDirectories(gameRoot);
 
-        createDirectories(gameRoot.resolve("saves"));
-            createDirectories(gameRoot.resolve("saves/chunks"));
-            createDirectories(gameRoot.resolve("saves/state"));
-        createDirectories(gameRoot.resolve("shaderpacks"));
-        createDirectories(gameRoot.resolve("texturepacks"));
+        // === Configuration ===
         createDirectories(gameRoot.resolve("config"));
+
+        // === Sauvegardes ===
+        Path savesPath = gameRoot.resolve("saves");
+        createDirectories(savesPath);
+        createDirectories(savesPath.resolve("worlds"));
+        createDirectories(savesPath.resolve("backups"));
+
+        // === Ressources personnalisées uniquement ===
+        createDirectories(gameRoot.resolve("texturepacks"));
+        createDirectories(gameRoot.resolve("shaderpacks"));
+
+        // === Mods (pour le futur) ===
+        Path modsPath = gameRoot.resolve("mods");
+        createDirectories(modsPath);
+        createDirectories(modsPath.resolve("enabled"));
+        createDirectories(modsPath.resolve("disabled"));
+
+        // === Logs ===
+        Path logsPath = gameRoot.resolve("logs");
+        createDirectories(logsPath);
+        createDirectories(logsPath.resolve("crash-reports"));
+
+        // === Utilitaires ===
+        createDirectories(gameRoot.resolve("screenshots"));
+        createDirectories(gameRoot.resolve("temp"));
+
+        System.out.println("Game directories created at: " + gameRoot);
     }
 
     public void createDirectories(Path path) {
@@ -44,10 +68,6 @@ public class GameDirectoryManager {
         }
     }
 
-    public File getSavesDirectory() {
-        return determineGameDirectory().resolve("saves").toFile();
-    }
-
     public File getShaderpacksDirectory() {
         return determineGameDirectory().resolve("shaderpacks").toFile();
     }
@@ -56,7 +76,39 @@ public class GameDirectoryManager {
         return determineGameDirectory().resolve("texturepacks").toFile();
     }
 
-    public File getConfigDirectory() {
-        return determineGameDirectory().resolve("config").toFile();
+    public File getWorldsDirectory() {
+        return determineGameDirectory().resolve("saves/worlds").toFile();
+    }
+
+    public File getBackupsDirectory() {
+        return determineGameDirectory().resolve("saves/backups").toFile();
+    }
+
+    public File getResourcePacksDirectory() {
+        return determineGameDirectory().resolve("resourcepacks").toFile();
+    }
+
+    public File getModsDirectory() {
+        return determineGameDirectory().resolve("mods").toFile();
+    }
+
+    public File getLogsDirectory() {
+        return determineGameDirectory().resolve("logs").toFile();
+    }
+
+    public File getCrashReportsDirectory() {
+        return determineGameDirectory().resolve("logs/crash-reports").toFile();
+    }
+
+    public File getCacheDirectory() {
+        return determineGameDirectory().resolve("cache").toFile();
+    }
+
+    public File getScreenshotsDirectory() {
+        return determineGameDirectory().resolve("screenshots").toFile();
+    }
+
+    public File getTempDirectory() {
+        return determineGameDirectory().resolve("temp").toFile();
     }
 }
