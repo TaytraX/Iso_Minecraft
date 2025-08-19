@@ -55,16 +55,14 @@ public class SplashRenderer {
 
     private void initialize() {
         VAO = glGenVertexArrays();
-        if (VAO == 0) throw new RuntimeException("Failed to generate VAO");
-
         VBO = glGenBuffers();
-        if (VBO == 0) throw new RuntimeException("Failed to generate VBO");
-
         textureVBO = glGenBuffers();
-        if (textureVBO == 0) throw new RuntimeException("Failed to generate textureVBO");
-
         EBO = glGenBuffers();
-        if (EBO == 0) throw new RuntimeException("Failed to generate EBO");
+
+        if (VAO == 0 || VBO == 0 || textureVBO == 0 || EBO == 0) {
+            cleanup(); // Libérer ce qui a pu être alloué
+            throw new RuntimeException("Failed to generate OpenGL objects");
+        }
 
 
         float[] vertices = {
