@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Startup {
-    GameDirectoryManager gameDirectoryManager = new GameDirectoryManager();
+    GameDirectoryManager gameDirectoryManager;
     private final SplashWindow splash;
     private SystemHardwareScanner HardwareScanner;
     private SplashRenderer splashRenderer;
@@ -17,6 +17,7 @@ public class Startup {
 
     public Startup() {
         splash = new SplashWindow();
+        gameDirectoryManager = new GameDirectoryManager();
         // Thread pool pour les tâches asynchrones
         executorService = Executors.newCachedThreadPool(r -> {
             Thread t = new Thread(r, "SystemHardwareScanner-Thread");

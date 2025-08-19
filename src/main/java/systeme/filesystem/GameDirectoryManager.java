@@ -100,15 +100,15 @@ public class GameDirectoryManager {
         return determineGameDirectory().resolve("logs/crash-reports").toFile();
     }
 
-    public File getCacheDirectory() {
-        return determineGameDirectory().resolve("cache").toFile();
-    }
-
     public File getScreenshotsDirectory() {
         return determineGameDirectory().resolve("screenshots").toFile();
     }
 
     public File getTempDirectory() {
         return determineGameDirectory().resolve("temp").toFile();
+    }
+
+    public File getConfigDirectory() {
+        return determineGameDirectory().resolve("config").toFile();
     }
 }

@@ -1,4 +1,4 @@
 package render.window;
 
-public class WindowConfig {
+public record WindowConfig() {
 }
