@@ -71,7 +71,7 @@ public class Startup {
             }
 
             // Sortir de la boucle si la détection est terminée et qu'on a attendu un peu
-            if (HardwareScanner.isDetectionComplete() && frameCount > 300) {
+            if (HardwareScanner.isDetectionComplete() && frameCount > 3000) {
                 System.out.println("Detection complete, exiting splash...");
                 break;
             }

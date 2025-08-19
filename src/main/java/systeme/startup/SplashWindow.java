@@ -32,6 +32,7 @@ public class SplashWindow {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
         glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
         //Configuration OpenGL
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -66,6 +67,13 @@ public class SplashWindow {
         assert vidMode != null;
         glfwSetWindowPos(window, (vidMode.width() - width) / 2,
                 (vidMode.height() - height) / 2);
+
+
+
+        glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
+            if(key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE)
+                glfwSetWindowShouldClose(window, true);
+        });
 
         glfwShowWindow(window);
     }
