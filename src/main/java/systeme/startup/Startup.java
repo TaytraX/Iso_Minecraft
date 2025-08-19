@@ -56,9 +56,8 @@ public class Startup {
             update();
             render();
 
-            // Déclencher la détection OpenGL après quelques frames
-            // pour s'assurer que le contexte OpenGL est stable
-            if (!openglDetectionTriggered && frameCount > 3) {
+            // Déclencher la détection OpenGL après quelques frames pour s'assurer que le contexte OpenGL est stable
+            if (!openglDetectionTriggered && frameCount > 6) {
                 HardwareScanner.triggerOpenGLDetection();
                 openglDetectionTriggered = true;
                 System.out.println("OpenGL detection triggered from main thread");
