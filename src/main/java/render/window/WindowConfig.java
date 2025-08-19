@@ -12,15 +12,14 @@ public class WindowConfig {
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_TRUE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        glfwWindowHint(GLFW_MAXIMIZED, GLFW_FALSE);
-        glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+        glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+        glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
         glfwWindowHint(GLFW_FOCUS_ON_SHOW, GLFW_TRUE);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
         glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_SRGB_CAPABLE, GLFW_TRUE);
-        glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
         glfwWindowHint(GLFW_STEREO, GLFW_FALSE);
     }
 
