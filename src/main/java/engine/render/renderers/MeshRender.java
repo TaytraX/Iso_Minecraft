@@ -1,9 +1,9 @@
-package render.renderers;
+package engine.render.renderers;
 
-import render.Camera;
-import render.Renderable;
+import engine.render.Camera;
+import engine.render.GameRenderable;
 
-public class MeshRender implements Renderable {
+public class MeshRender implements GameRenderable {
     @Override
     public void initialize() {
 

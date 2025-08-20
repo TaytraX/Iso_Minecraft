@@ -1,8 +1,8 @@
 package systeme.startup;
 
 import org.lwjgl.BufferUtils;
-import render.loader.Shader;
-import render.loader.Texture;
+import engine.render.loader.Shader;
+import engine.render.loader.Texture;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;

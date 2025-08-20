@@ -1,4 +1,6 @@
-package render;
+package engine.render;
+
+import window.Window;
 
 public class Renderer {
 

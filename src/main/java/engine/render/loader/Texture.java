@@ -1,4 +1,4 @@
-package render.loader;
+package engine.render.loader;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;

@@ -1,5 +1,6 @@
-package render;
+package window;
 
+import engine.render.DisplayManager;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.system.MemoryUtil;

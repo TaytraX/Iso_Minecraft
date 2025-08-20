@@ -1,4 +1,4 @@
-package render;
+package engine.render;
 
 import org.joml.Vector2f;
 import static org.lwjgl.opengl.GL11.*;

@@ -1,4 +1,4 @@
-package render.loader;
+package engine.render.loader;
 
 import systeme.exception.ShaderCompilationException;
 import systeme.filesystem.GameDirectoryManager;
