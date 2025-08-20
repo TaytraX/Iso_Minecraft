@@ -1,4 +1,4 @@
-package engine.render.loader;
+package game.render.loader;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;

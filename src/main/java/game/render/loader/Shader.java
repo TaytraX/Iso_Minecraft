@@ -1,4 +1,4 @@
-package engine.render.loader;
+package game.render.loader;
 
 import systeme.exception.ShaderCompilationException;
 import systeme.filesystem.GameDirectoryManager;
@@ -27,6 +27,10 @@ public class Shader {
             if (!tryLoadFromShaderpack(shaderName)) {
                 loadEmbeddedShader(shaderName);
             }
+        } catch (NullPointerException e) {
+            System.err.println("Le shader '" + shaderName + "' n'a pas pu charger.");
+            System.err.println("Le shader '" + shaderName + "' n'a pas pu charger.");
+            loadDefaultShader();
         } catch (IOException e) {
             System.err.println("Erreur de fichier shader '" + shaderName + "': " + e.getMessage());
             loadDefaultShader();

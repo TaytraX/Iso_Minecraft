@@ -1,4 +1,4 @@
-package engine.render;
+package game.render;
 
 public class Camera {
 }

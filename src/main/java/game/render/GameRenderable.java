@@ -1,4 +1,4 @@
-package engine.render;
+package game.render;
 
 public interface GameRenderable {
     void initialize();

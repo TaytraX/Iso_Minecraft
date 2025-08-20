@@ -1,4 +1,4 @@
-package engine.render.loader;
+package game.render.loader;
 
 import java.util.HashMap;
 import java.util.Map;

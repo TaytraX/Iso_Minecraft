@@ -1,5 +1,6 @@
 package systeme.startup;
 
+import game.Engine;
 import systeme.filesystem.GameDirectoryManager;
 
 import java.util.concurrent.CompletableFuture;
@@ -14,9 +15,11 @@ public class Startup {
     private SplashRenderer splashRenderer;
     private final ExecutorService executorService;
     private CompletableFuture<Void> detectionFuture;
+    private Engine engine;
 
     public Startup() {
         splash = new SplashWindow();
+        engine = new Engine();
         gameDirectoryManager = new GameDirectoryManager();
         // Thread pool pour les tâches asynchrones
         executorService = Executors.newCachedThreadPool(r -> {
@@ -76,6 +79,7 @@ public class Startup {
                 break;
             }
         }
+        engine.start();
     }
 
     public void render() {
