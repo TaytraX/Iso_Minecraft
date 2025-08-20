@@ -27,10 +27,7 @@ public class Shader {
             if (!tryLoadFromShaderpack(shaderName)) {
                 loadEmbeddedShader(shaderName);
             }
-        } catch (NullPointerException e) {
-            System.err.println("Le shader '" + shaderName + "' n'a pas pu charger.");
-            System.err.println("Le shader '" + shaderName + "' n'a pas pu charger.");
-            loadDefaultShader();
+
         } catch (IOException e) {
             System.err.println("Erreur de fichier shader '" + shaderName + "': " + e.getMessage());
             loadDefaultShader();
@@ -156,19 +153,11 @@ public class Shader {
     }
 
     private void loadDefaultShader() throws ShaderCompilationException {
-        // Crée un shader par défaut en hardcoded
-        String defaultVertex = """
-                #version 330 core
-                in vec3 position;
-                void main() { gl_Position = vec4(position, 1.0); }""";
-
-        String defaultFragment = """
-                #version 330 core
-                out vec4 fragColor;
-                void main() { fragColor = vec4(1.0, 0.0, 1.0, 1.0); }"""; // Rose shocking
-
-        compile(defaultVertex, defaultFragment);
-        uniforms = new UniformManager(programID);
+        try {
+            loadEmbeddedShader("default");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public UniformManager getUniforms() {
