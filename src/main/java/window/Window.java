@@ -139,6 +139,7 @@ public class Window {
     }
 
     public void clear(){
+        glClearColor(0.2f, 0.3f, 0.8f, 1.0f); // Fond bleu
         glClear(GL_COLOR_BUFFER_BIT);
     }
 

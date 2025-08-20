@@ -18,11 +18,11 @@ public class Renderer {
 
     private void init() {
         window.init();
-        window.clear();
         meshRenderer.initialize();
     }
 
     public void render() {
+        window.clear();
         meshRenderer.render(null, 0);
         window.update();
     }
