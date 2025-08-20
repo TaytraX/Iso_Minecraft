@@ -4,7 +4,6 @@ import game.render.Camera;
 import game.render.GameRenderable;
 import game.render.loader.Shader;
 import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GL30C;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -34,7 +33,6 @@ public class MeshRender implements GameRenderable {
         int VBO = glGenBuffers();
         int EBO = glGenBuffers();
 
-        // Vos vertices sont corrects pour un triangle 2D
         float[] vertices = {
                 0.0f,  0.5f,   // sommet 0
                 -0.5f, -0.5f,   // sommet 1
@@ -55,13 +53,13 @@ public class MeshRender implements GameRenderable {
 
         glBindVertexArray(VAO);
 
-        glBindBuffer(GL30C.GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL30C.GL_ARRAY_BUFFER, vertexBuffer, GL30C.GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 2, GL30C.GL_FLOAT, false, 0, 0);
+        glBindBuffer(GL30.GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL30.GL_ARRAY_BUFFER, vertexBuffer, GL30.GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 2, GL30.GL_FLOAT, false, 0, 0);
         glEnableVertexAttribArray(0);
 
         glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30C.GL_STATIC_DRAW);
+        glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30.GL_STATIC_DRAW);
 
         glBindVertexArray(0);
     }
