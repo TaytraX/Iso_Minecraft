@@ -1,10 +1,11 @@
 package systeme;
 
-import systeme.exception.ShaderCompilationException;
+import game.Engine;
 import systeme.startup.Startup;
 
 public class Teste {
     private static Startup startup;
+    private static Engine engine = new Engine();
 
     static {
         try {

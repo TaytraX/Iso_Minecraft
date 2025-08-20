@@ -20,11 +20,6 @@ public class UniformManager {
         uniforms.put(name, location);
     }
 
-    void parseUniformsFromShader(String source) {
-        // Parser les deux shaders
-        parseUniformsFromSource(source);
-    }
-
     void parseUniformsFromSource(String shaderSource) {
         String[] lines = shaderSource.split("\n");
 

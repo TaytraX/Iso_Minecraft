@@ -62,6 +62,13 @@ public class Window {
 
         // MAINTENANT on peut créer les capacités OpenGL
         createCapabilities();
+        // Vérification OpenGL
+        if (glGetString(GL_VERSION) == null) {
+            throw new RuntimeException("Failed to initialize OpenGL context");
+        }
+
+// AJOUTEZ CETTE LIGNE :
+        glViewport(0, 0, width, height);
 
         // Vérification que OpenGL fonctionne
         if (glGetString(GL_VERSION) == null) {

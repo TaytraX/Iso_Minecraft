@@ -15,7 +15,7 @@ public class Startup {
     private SplashRenderer splashRenderer;
     private final ExecutorService executorService;
     private CompletableFuture<Void> detectionFuture;
-    private Engine engine;
+    Engine engine;
 
     public Startup() {
         splash = new SplashWindow();
@@ -49,6 +49,7 @@ public class Startup {
         loop();
         gameDirectoryManager.createGameDirectories();
         cleanup();
+        engine.start();
     }
 
     public void loop() {
@@ -79,7 +80,6 @@ public class Startup {
                 break;
             }
         }
-        engine.start();
     }
 
     public void render() {
