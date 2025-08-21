@@ -3,7 +3,6 @@ package game;
 import game.render.Renderer;
 
 public class Engine {
-    private int FPS;
     private Renderer renderer;
 
     public void init() {

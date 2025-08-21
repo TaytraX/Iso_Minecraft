@@ -18,6 +18,7 @@ public class Shader {
     private int fragmentShaderID;
     private final GameDirectoryManager gameDirectoryManager;
     private final UniformManager uniforms;
+    private String sources;
 
     public Shader(String shaderName) throws ShaderCompilationException {
         gameDirectoryManager = new GameDirectoryManager();
@@ -28,8 +29,13 @@ public class Shader {
                 loadEmbeddedShader(shaderName);
             }
 
+        } catch (NullPointerException e) {
+            System.err.println("Shader '" + shaderName + "' introuvable. " + e.getMessage());
+            System.out.println("Chargement du shader par défaut...");
+            loadDefaultShader();
         } catch (IOException e) {
             System.err.println("Erreur de fichier shader '" + shaderName + "': " + e.getMessage());
+            System.out.println("Chargement du shader par défaut...");
             loadDefaultShader();
         } catch (ShaderCompilationException e) {
             System.err.println("=== SHADER ERROR ===");
@@ -39,6 +45,7 @@ public class Shader {
             loadDefaultShader();
         } catch (RuntimeException e) {
             System.err.println("Erreur OpenGL shader '" + shaderName + "': " + e.getMessage());
+            System.out.println("Chargement du shader par défaut...");
             loadDefaultShader();
         } catch (Exception e) { // Fallback pour le reste
             System.err.println("Erreur inattendue shader '" + shaderName + "': " + e.getMessage());
@@ -75,8 +82,7 @@ public class Shader {
             }
             fragmentSource = new String(fragmentInputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
-        String sources = vertexSource + "\n" + fragmentSource;
-
+        sources = vertexSource + "\n" + fragmentSource;
         uniforms.parseUniformsFromSource(sources);
         compile(vertexSource, fragmentSource); // Peut throw ShaderCompilationException
     }
@@ -157,9 +163,12 @@ public class Shader {
         String defaultFragment = """
                 #version 330 core
                 out vec4 fragColor;
-                void main() { fragColor = vec4(1.0, 0.0, 1.0, 1.0); }"""; // Rose shocking
+                void main() { fragColor = vec4(1.0, 1.0, 1.0, 1.0); }""";
 
-            compile(defaultVertex, defaultFragment);
+        sources = defaultVertex + "\n" + defaultFragment;// Rose shocking
+
+        uniforms.parseUniformsFromSource(sources);
+        compile(defaultVertex, defaultFragment);
     }
 
     public UniformManager getUniforms() {

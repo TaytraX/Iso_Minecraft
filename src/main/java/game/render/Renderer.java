@@ -17,7 +17,6 @@ public class Renderer {
     }
 
     private void init() {
-        window.init();
         meshRenderer.initialize();
     }
 

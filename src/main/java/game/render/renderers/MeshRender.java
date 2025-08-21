@@ -3,7 +3,7 @@ package game.render.renderers;
 import game.render.Camera;
 import game.render.GameRenderable;
 import game.render.loader.Shader;
-import org.lwjgl.opengl.GL30C;
+import org.lwjgl.opengl.GL30;
 import systeme.exception.ShaderCompilationException;
 
 import java.nio.FloatBuffer;
@@ -14,18 +14,17 @@ import static org.lwjgl.opengl.GL15C.glBindBuffer;
 import static org.lwjgl.opengl.GL15C.glBufferData;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL20C.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 import static org.lwjgl.opengl.GL30C.glBindVertexArray;
 import static org.lwjgl.opengl.GL30C.glGenVertexArrays;
 
 public class MeshRender implements GameRenderable {
 
-    private int VAO, VBO, EBO;
+    private int VAO;
     private final Shader shader;
 
     public MeshRender() {
         try {
-            shader = new Shader(null);
+            shader = new Shader("background");
         } catch (ShaderCompilationException e) {
             throw new RuntimeException(e);
         }
@@ -35,14 +34,14 @@ public class MeshRender implements GameRenderable {
     public void initialize() {
 
         VAO = glGenVertexArrays();
-        VBO = glGenBuffers();
-        EBO = glGenBuffers();
+        int VBO = glGenBuffers();
+        int EBO = glGenBuffers();
 
         float[] vertices = {
-                -1.0f, -1.0f,  // Bas gauche
-                1.0f, -1.0f,  // Bas droit
-                1.0f,  1.0f,  // Haut droit
-                -1.0f,  1.0f   // Haut gauche
+                // x, y
+                0.0f,  0.5f,   // sommet 0
+                -0.5f, -0.5f,   // sommet 1
+                0.5f, -0.5f    // sommet 2
         };
 
         FloatBuffer vertexBuffer = org.lwjgl.BufferUtils.createFloatBuffer(vertices.length);
@@ -50,24 +49,27 @@ public class MeshRender implements GameRenderable {
 
         // Ordre des indices correct pour le sens antihoraire
         int[] indices = {
-                0, 1, 2,  // Premier triangle
-                2, 3, 0   // Deuxième triangle
+                0, 1, 2  // ordre des sommets pour former le triangle
         };
 
         IntBuffer indexBuffer = org.lwjgl.BufferUtils.createIntBuffer(indices.length);
         indexBuffer.put(indices).flip();
 
-        glBindVertexArray(VAO);
+        try {
+            glBindVertexArray(VAO);
 
-        glBindBuffer(GL30C.GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL30C.GL_ARRAY_BUFFER, vertexBuffer, GL30C.GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 2, GL30C.GL_FLOAT, false, 0, 0);
-        glEnableVertexAttribArray(0);
+            glBindBuffer(GL30.GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL30.GL_ARRAY_BUFFER, vertexBuffer, GL30.GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 2, GL30.GL_FLOAT, false, 0, 0);
+            glEnableVertexAttribArray(0);
 
-        glBindBuffer(GL30C.GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL30C.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30C.GL_STATIC_DRAW);
+            glBindBuffer(GL30.GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL30.GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL30.GL_STATIC_DRAW);
 
-        glBindVertexArray(0);
+            glBindVertexArray(0);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -87,8 +89,5 @@ public class MeshRender implements GameRenderable {
     @Override
     public void cleanup() {
         shader.cleanup();
-        glDeleteBuffers(VBO);
-        glDeleteBuffers(EBO);
-        glDeleteVertexArrays(VAO);
     }
 }

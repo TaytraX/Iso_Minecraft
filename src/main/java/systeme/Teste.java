@@ -4,8 +4,8 @@ import game.Engine;
 import systeme.startup.Startup;
 
 public class Teste {
-    private static Startup startup;
-    private static Engine engine = new Engine();
+    private static final Startup startup;
+    private static final Engine engine = new Engine();
 
     static {
         try {
@@ -17,5 +17,6 @@ public class Teste {
 
     public static void main(String[] args) {
         startup.run();
+        engine.start();
     }
 }
