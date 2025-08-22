@@ -1,6 +1,7 @@
 package game;
 
 import game.render.Renderer;
+import overworld.world.*;
 
 public class Engine {
     private Renderer renderer;
@@ -17,6 +18,7 @@ public class Engine {
     public void run() {
         while(!renderer.window.windowShouldClose()) {
             renderer.render();
+
         }
         cleanup();
     }

@@ -46,6 +46,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 
     implementation(platform("org.lwjgl:lwjgl-bom:$lwjglVersion"))
+    implementation(project(":overworld"))
 
     implementation("com.github.oshi:oshi-core:6.6.5")
     implementation("org.slf4j:slf4j-simple:2.0.9")
