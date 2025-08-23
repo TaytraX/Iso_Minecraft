@@ -1,21 +1,22 @@
 package world.block;
 
 import org.joml.Vector3f;
+import world.CoordSystem3D;
 import world.MeshCube;
 
 public class Dearth extends Block {
 
-    private Vector3f position;
+    private CoordSystem3D position;
     private final MeshCube block;
 
     public Dearth() {
-        super(new Vector3f(0,0,0));
-        block = new MeshCube(new Vector3f(0, 0, 0), new Vector3f(1, 1, 1));
+        super(new CoordSystem3D(new Vector3f(0, 0, 0)));
+        block = new MeshCube(position, new Vector3f(1, 1, 1));
     }
 
     @Override
     public Vector3f getPosition() {
-        return null;
+        return position.coord();
     }
 
     @Override

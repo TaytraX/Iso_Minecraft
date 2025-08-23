@@ -8,9 +8,9 @@ public abstract class Block {
     protected final CoordSystem3D position;
     protected final MeshCube block;
 
-    protected Block(Vector3f position) {
-        this.position = new CoordSystem3D(new Vector3f(position));
-        block = new MeshCube(new Vector3f(this.position.coord()), new Vector3f(1, 1, 1));
+    protected Block(CoordSystem3D position) {
+        this.position = position;
+        block = new MeshCube(new CoordSystem3D(position.coord()), new Vector3f(1, 1, 1));
     }
 
     public abstract Vector3f getPosition();
