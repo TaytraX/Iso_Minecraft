@@ -1,12 +1,14 @@
 package game;
 
 import game.render.Renderer;
-import overworld.world.*;
+import world.Test;
 
 public class Engine {
     private Renderer renderer;
+    Test test;
 
     public void init() {
+        test = new Test();
         renderer = new Renderer();
     }
 
@@ -21,6 +23,7 @@ public class Engine {
 
         }
         cleanup();
+        test.test();
     }
 
     private void cleanup() {

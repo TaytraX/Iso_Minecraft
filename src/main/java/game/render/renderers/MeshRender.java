@@ -1,7 +1,6 @@
 package game.render.renderers;
 
 import game.render.Camera;
-import game.render.GameRenderable;
 import game.render.loader.Shader;
 import org.lwjgl.opengl.GL30;
 import systeme.exception.ShaderCompilationException;

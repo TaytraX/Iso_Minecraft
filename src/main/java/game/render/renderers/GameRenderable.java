@@ -1,4 +1,6 @@
-package game.render;
+package game.render.renderers;
+
+import game.render.Camera;
 
 public interface GameRenderable {
     void initialize();
