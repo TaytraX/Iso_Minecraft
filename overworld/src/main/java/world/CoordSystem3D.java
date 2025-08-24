@@ -1,5 +1,3 @@
 package world;
 
-import org.joml.Vector3f;
-
-public record CoordSystem3D(Vector3f coord) {}
+public record CoordSystem3D(int x, int y, int z) {}
