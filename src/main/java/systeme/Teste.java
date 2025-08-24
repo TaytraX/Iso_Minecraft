@@ -16,7 +16,7 @@ public class Teste {
     }
 
     public static void main(String[] args) {
-        startup.run();
+        //startup.run();
         engine.start();
     }
 }
