@@ -2,25 +2,28 @@ package systeme.exception;
 
 public class ShaderCompilationException extends Exception {
     private final String shaderType;
-    private final String shaderSource;
-    private final String originalError;
 
-    public ShaderCompilationException(String message, String shaderType, String shaderSource) {
+    public ShaderCompilationException(String message) {
+        super(message);
+        this.shaderType = "Unknown";
+    }
+
+    public ShaderCompilationException(String message, String shaderType) {
         super(message);
         this.shaderType = shaderType;
-        this.shaderSource = shaderSource;
-        this.originalError = message;
+    }
+
+    public ShaderCompilationException(String message, Throwable cause) {
+        super(message, cause);
+        this.shaderType = "Unknown";
+    }
+
+    public ShaderCompilationException(String message, String shaderType, Throwable cause) {
+        super(message, cause);
+        this.shaderType = shaderType;
     }
 
     public String getShaderType() {
         return shaderType;
-    }
-
-    public String getShaderSource() {
-        return shaderSource;
-    }
-
-    public String getOriginalError() {
-        return originalError;
     }
 }
