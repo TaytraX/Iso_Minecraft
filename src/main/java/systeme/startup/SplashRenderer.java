@@ -136,7 +136,7 @@ public class SplashRenderer {
         glDeleteBuffers(EBO);
         glDeleteBuffers(VBO);
 
-        splashShader.cleanup();
+        splashShader.cleanUp();
         splashTexture.cleanUp();
     }
 }

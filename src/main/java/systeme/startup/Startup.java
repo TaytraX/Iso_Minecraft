@@ -130,7 +130,7 @@ public class Startup {
             }
         }
 
-        // Dans cleanup() avant splash.cleanup() :
+        // Dans cleanUp() avant splash.cleanUp() :
         if (splashRenderer != null) {
             splashRenderer.cleanup();
         }

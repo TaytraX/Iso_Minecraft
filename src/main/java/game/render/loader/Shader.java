@@ -183,7 +183,7 @@ public class Shader {
         glUseProgram(0);
     }
 
-    public void cleanup() {
+    public void cleanUp() {
         stop();
         uniforms.cleanup();
         glDetachShader(programID, vertexShaderID);
