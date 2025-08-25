@@ -4,7 +4,6 @@ import game.render.renderers.WorldRender;
 import window.Window;
 
 public class Renderer {
-
     public final Window window;
     public final WorldRender worldRender;
 
