@@ -5,7 +5,8 @@ import game.render.loader.Shader;
 import game.render.loader.Texture;
 import org.joml.Matrix4f;
 import systeme.exception.ShaderCompilationException;
-import world.Chunk;
+import world.chunk.LocalBlockCoord;
+import world.WorldManager;
 
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -18,7 +19,7 @@ public class WorldRender implements GameRenderable {
     private int VAO, VBO, EBO;
     private final Shader shader;
     private final Texture texture;
-    private final Chunk chunk;
+    private final WorldManager worldManager;
 
     // Vertices d'un cube 3D (position + coordonnées de texture)
     private final float[] cubeVertices = {
@@ -62,7 +63,7 @@ public class WorldRender implements GameRenderable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        chunk = new Chunk(); // Votre chunk avec un bloc à (0, 0, 0)
+        worldManager = new WorldManager();
     }
 
     @Override
@@ -117,16 +118,22 @@ public class WorldRender implements GameRenderable {
         Matrix4f projectionMatrix = createIsometricProjectionMatrix();
         setMatrix4f(shader, "u_projectionMatrix", projectionMatrix);
 
-        // Pour chaque bloc dans le chunk
-        chunk.chunks.forEach((coord, meshCube) -> {
-            // Matrice de transformation pour positionner le bloc
-            Matrix4f modelMatrix = new Matrix4f();
-            modelMatrix.translate(coord.x(), coord.y(), coord.z());
+        // Parcourir tous les chunks chargés
+        worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> {
+            // Pour chaque bloc dans ce chunk
+            chunk.getBlocks().forEach((localPos, block) -> {
+                // Obtenir la position mondiale du bloc
+                LocalBlockCoord worldPos = block.getPosition();
 
-            setMatrix4f(shader, "u_modelMatrix", modelMatrix);
+                // Matrice de transformation pour positionner le bloc
+                Matrix4f modelMatrix = new Matrix4f();
+                modelMatrix.translate(worldPos.x(), worldPos.y(), worldPos.z());
 
-            // Dessiner le cube
-            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+                setMatrix4f(shader, "u_modelMatrix", modelMatrix);
+
+                // Dessiner le cube
+                glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+            });
         });
 
         glBindVertexArray(0);

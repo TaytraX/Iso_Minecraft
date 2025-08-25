@@ -1,17 +1,17 @@
 package world.block;
 
-import world.CoordSystem3D;
+import world.chunk.LocalBlockCoord;
 
 public class Dearth extends Block {
-    private final CoordSystem3D position;
+    private final LocalBlockCoord position;
 
-    public Dearth(CoordSystem3D position) {
+    public Dearth(LocalBlockCoord position) {
         super(position);
         this.position = position;
     }
 
     @Override
-    public CoordSystem3D getPosition() {
+    public LocalBlockCoord getPosition() {
         return position;
     }
 
