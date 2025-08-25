@@ -5,6 +5,7 @@ import game.render.loader.Shader;
 import game.render.loader.Texture;
 import org.joml.Matrix4f;
 import systeme.exception.ShaderCompilationException;
+import world.ChunkCoord;
 import world.chunk.LocalBlockCoord;
 import world.WorldManager;
 
@@ -120,10 +121,8 @@ public class WorldRender implements GameRenderable {
 
         // Parcourir tous les chunks chargés
         worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> {
-            // Pour chaque bloc dans ce chunk
-            chunk.getBlocks().forEach((localPos, block) -> {
                 // Obtenir la position mondiale du bloc
-                LocalBlockCoord worldPos = block.getPosition();
+                ChunkCoord worldPos = chunk.getPosition();
 
                 // Matrice de transformation pour positionner le bloc
                 Matrix4f modelMatrix = new Matrix4f();
@@ -133,7 +132,6 @@ public class WorldRender implements GameRenderable {
 
                 // Dessiner le cube
                 glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-            });
         });
 
         glBindVertexArray(0);

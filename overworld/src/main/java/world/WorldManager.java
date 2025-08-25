@@ -27,10 +27,6 @@ public class WorldManager {
 
     public void addChunk(int x, int y, int z) {
         ChunkCoord coord = new ChunkCoord(x, y, z);
-        chunks.put(coord, new Chunk());
-    }
-
-    public ChunkCoord getPosition{
-        return
+        chunks.put(coord, new Chunk(coord));
     }
 }

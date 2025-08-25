@@ -8,8 +8,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Chunk {
     public ConcurrentHashMap<LocalBlockCoord, Block> blocks = new ConcurrentHashMap<>();
+    private final ChunkCoord position;
 
-    public Chunk() {
+    public Chunk(ChunkCoord position) {
+        this.position = position;
         generateBlocks();
     }
 
@@ -26,9 +28,8 @@ public class Chunk {
         blocks.put(pos, new Dearth(pos));
     }
 
-    // Récupérer un bloc du chunk (coordonnées locales)
-    public Block getBlock(int localX, int localY, int localZ) {
-        return blocks.get(new LocalBlockCoord((byte)localX, (byte)localY, (byte)localZ));
+    public ChunkCoord getPosition() {
+        return position;
     }
 
     // Getter pour tous les blocs (pour le rendu)
