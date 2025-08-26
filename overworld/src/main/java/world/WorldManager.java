@@ -4,7 +4,7 @@ import world.chunk.Chunk;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class WorldManager {
-    private static ConcurrentHashMap<ChunkCoord, Chunk> chunks = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<ChunkCoord, Chunk> chunks = new ConcurrentHashMap<>();
 
     public WorldManager() {
         generateChunk();
