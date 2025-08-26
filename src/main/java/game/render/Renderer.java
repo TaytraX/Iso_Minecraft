@@ -5,15 +5,13 @@ import window.Window;
 
 public class Renderer {
     public final Window window;
-    private final WorldRender worldRender;
-    private Camera camera;
+    public final WorldRender worldRender;
 
     public Renderer() {
         int height = 800;
         int width = 1280;
         window = new Window("Iso_Minecraft", width, height, true);
         worldRender = new WorldRender();
-        camera = new Camera();
         init();
     }
 
@@ -23,7 +21,7 @@ public class Renderer {
 
     public void render() {
         window.clear();
-        worldRender.render(camera, 0);
+        worldRender.render(null, 0);
         window.update();
     }
 

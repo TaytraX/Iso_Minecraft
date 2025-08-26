@@ -4,7 +4,6 @@ import game.render.Renderer;
 
 public class Engine {
     private Renderer renderer;
-    public static boolean isRunning;
 
     public void init() {
         renderer = new Renderer();

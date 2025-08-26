@@ -1,6 +1,7 @@
 package world.block;
 
 import org.joml.Vector3f;
+import world.chunk.LocalBlockCoord;
 
 public abstract class Block {
     protected final MeshCube block;

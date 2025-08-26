@@ -5,6 +5,8 @@ import game.render.loader.Shader;
 import game.render.loader.Texture;
 import org.joml.Matrix4f;
 import systeme.exception.ShaderCompilationException;
+import world.ChunkCoord;
+import world.chunk.LocalBlockCoord;
 import world.WorldManager;
 
 import java.nio.FloatBuffer;
@@ -18,9 +20,7 @@ public class WorldRender implements GameRenderable {
     private int VAO, VBO, EBO;
     private final Shader shader;
     private final Texture texture;
-    private final WorldManager world;
-
-    private final float FOV = 0.6f; // Ajustez cette valeur pour zoomer/dézoomer
+    private final WorldManager worldManager;
 
     // Vertices d'un cube 3D (position + coordonnées de texture)
     private final float[] cubeVertices = {
@@ -36,7 +36,7 @@ public class WorldRender implements GameRenderable {
             1.0f, 1.0f, 1.0f,         1.0f, 1.0f,  // avant-haut
             1.0f, 1.0f, 0.0f,         0.0f, 1.0f,  // arrière-haut
 
-            // Face gauche (Z=0) - face du fond
+            // Face ARRIÈRE (Z=0) - face du fond
             0.0f, 0.0f, 0.0f,         1.0f, 0.0f,  // gauche bas
             0.0f, 1.0f, 0.0f,         1.0f, 1.0f,  // gauche haut
             1.0f, 1.0f, 0.0f,         0.0f, 1.0f,  // droite haut
@@ -64,7 +64,7 @@ public class WorldRender implements GameRenderable {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        world = new WorldManager(); // Votre chunk avec un bloc à (0, 0, 0)
+        worldManager = new WorldManager();
     }
 
     @Override
@@ -119,20 +119,19 @@ public class WorldRender implements GameRenderable {
         Matrix4f projectionMatrix = createIsometricProjectionMatrix();
         setMatrix4f(shader, "u_projectionMatrix", projectionMatrix);
 
-        // Pour chaque bloc dans le chunk
-        world.forEach((chunkCoord, chunk) -> {
-            chunk.forEach((coord, meshCube) -> {
+        // Parcourir tous les chunks chargés
+        worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> {
+                // Obtenir la position mondiale du bloc
+                ChunkCoord worldPos = chunk.getPosition();
 
                 // Matrice de transformation pour positionner le bloc
                 Matrix4f modelMatrix = new Matrix4f();
-                modelMatrix.translate(coord.x(), coord.y(), coord.z());
-                modelMatrix.translate(chunkCoord.x(), chunkCoord.y(), chunkCoord.z());
+                modelMatrix.translate(worldPos.x(), worldPos.y(), worldPos.z());
 
                 setMatrix4f(shader, "u_modelMatrix", modelMatrix);
 
                 // Dessiner le cube
                 glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-            });
         });
 
         glBindVertexArray(0);
@@ -153,7 +152,7 @@ public class WorldRender implements GameRenderable {
         matrix.rotateY((float) Math.toRadians(45));        // Rotation de 45°
 
         // Échelle pour ajuster la taille à l'écran
-        matrix.scale(0.25f * FOV, 0.45f * FOV, 0.25f * FOV);
+        matrix.scale(1.5f, 2.3f, 1.5f);
 
         return matrix;
     }
