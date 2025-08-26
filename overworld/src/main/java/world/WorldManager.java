@@ -1,10 +1,11 @@
 package world;
+
 import world.chunk.Chunk;
+import world.chunk.ChunkCoord;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 
-public class WorldManager {
-    public static ConcurrentHashMap<ChunkCoord, Chunk> chunks = new ConcurrentHashMap<>();
+public class WorldManager extends HashMap<ChunkCoord, Chunk> {
 
     public WorldManager() {
         generateChunk();
@@ -14,19 +15,10 @@ public class WorldManager {
         // Exemple : générer quelques blocs dans ce chunk
         // Les coordonnées sont LOCALES au chunk (0-31 pour un chunk de 32x32x32)
         addChunk(0, 0, 0);
-        addChunk(2, 0, 0);
-    }
-
-    public ConcurrentHashMap<ChunkCoord, Chunk> getLoadedChunk() {
-        return chunks;
-    }
-
-    public Chunk getChunk(int localX, int localY, int localZ) {
-        return chunks.get(new ChunkCoord(localX, localY, localZ));
     }
 
     public void addChunk(int x, int y, int z) {
         ChunkCoord coord = new ChunkCoord(x, y, z);
-        chunks.put(coord, new Chunk(coord));
+        put(coord, new Chunk(coord));
     }
 }

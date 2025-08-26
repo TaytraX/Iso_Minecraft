@@ -1,7 +1,5 @@
 package world.block;
 
-import world.chunk.LocalBlockCoord;
-
 public class Dearth extends Block {
     private final LocalBlockCoord position;
 
