@@ -5,7 +5,6 @@ import game.render.loader.Shader;
 import game.render.loader.Texture;
 import org.joml.Matrix4f;
 import systeme.exception.ShaderCompilationException;
-import world.ChunkCoord;
 import world.chunk.LocalBlockCoord;
 import world.WorldManager;
 
@@ -23,24 +22,28 @@ public class WorldRender implements GameRenderable {
     private final WorldManager worldManager;
 
     // Vertices d'un cube 3D (position + coordonnées de texture)
-    private final float[] cubeVertices = {
+    private final float[][] cubeVertices = {
+            {
             // Face du DESSUS (Y=1)  vue d'en haut
             0.0f, 1.0f, 0.0f,         0.0f, 1.0f,  // coin arrière-gauche
             1.0f, 1.0f, 0.0f,         1.0f, 1.0f,  // coin arrière-droite
             1.0f, 1.0f, 1.0f,         1.0f, 0.0f,  // coin avant-droite
             0.0f, 1.0f, 1.0f,         0.0f, 0.0f,  // coin avant-gauche
-
+            },
+            {
             // Face DROITE (X=1)      côté droit du cube
             1.0f, 0.0f, 0.0f,         0.0f, 0.0f,  // arrière bas
             1.0f, 0.0f, 1.0f,         1.0f, 0.0f,  // avant-bas
             1.0f, 1.0f, 1.0f,         1.0f, 1.0f,  // avant-haut
             1.0f, 1.0f, 0.0f,         0.0f, 1.0f,  // arrière-haut
-
+            },
+            {
             // Face ARRIÈRE (Z=0) - face du fond
             0.0f, 0.0f, 0.0f,         1.0f, 0.0f,  // gauche bas
             0.0f, 1.0f, 0.0f,         1.0f, 1.0f,  // gauche haut
             1.0f, 1.0f, 0.0f,         0.0f, 1.0f,  // droite haut
             1.0f, 0.0f, 0.0f,         0.0f, 0.0f   // droite basse
+            }
     };
 
     // Indices pour les 3 faces visibles en isométrique
@@ -83,8 +86,11 @@ public class WorldRender implements GameRenderable {
         // Buffer des vertices
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-        FloatBuffer vertexBuffer = org.lwjgl.BufferUtils.createFloatBuffer(cubeVertices.length);
-        vertexBuffer.put(cubeVertices).flip();
+        FloatBuffer vertexBuffer = org.lwjgl.BufferUtils.createFloatBuffer(cubeVertices.length * cubeVertices[0].length);
+        for (float[] face : cubeVertices) {
+            vertexBuffer.put(face);
+        }
+        vertexBuffer.flip();
         glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
 
         // Buffer des indices
@@ -106,7 +112,7 @@ public class WorldRender implements GameRenderable {
     }
 
     @Override
-    public void render(Camera camera, float deltaTime) {
+    public void render(Camera camera) {
         shader.use();
         glBindVertexArray(VAO);
 
@@ -115,59 +121,27 @@ public class WorldRender implements GameRenderable {
         glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
         shader.getUniforms().setInt("u_texture", 0);
 
-        // Créer et envoyer la matrice de projection isométrique
-        Matrix4f projectionMatrix = createIsometricProjectionMatrix();
-        setMatrix4f(shader, "u_projectionMatrix", projectionMatrix);
+        shader.getUniforms().setMatrix4f("u_projectionMatrix", camera.getProjection());
 
         // Parcourir tous les chunks chargés
         worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> {
+            chunk.getBlocks().forEach((localPos, block) -> {
                 // Obtenir la position mondiale du bloc
-                ChunkCoord worldPos = chunk.getPosition();
+                LocalBlockCoord blockPos = block.getPosition();
 
                 // Matrice de transformation pour positionner le bloc
                 Matrix4f modelMatrix = new Matrix4f();
-                modelMatrix.translate(worldPos.x(), worldPos.y(), worldPos.z());
+                modelMatrix.translate(blockPos.x(), blockPos.y(), blockPos.z());
 
-                setMatrix4f(shader, "u_modelMatrix", modelMatrix);
+                shader.getUniforms().setMatrix4f("u_modelMatrix", modelMatrix);
 
                 // Dessiner le cube
                 glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+            });
         });
 
         glBindVertexArray(0);
         shader.stop();
-    }
-
-    /**
-     * Crée la matrice de projection isométrique
-     */
-    private Matrix4f createIsometricProjectionMatrix() {
-        Matrix4f matrix = new Matrix4f();
-
-        // Projection orthogonale
-        matrix.ortho(-10.0f, 10.0f, -10.0f, 10.0f, -100.0f, 100.0f);
-
-        // Vue isométrique avec angle correct pour préserver les proportions
-        matrix.rotateX((float) Math.toRadians(-35.264f));  // Angle mathématiquement correct
-        matrix.rotateY((float) Math.toRadians(45));        // Rotation de 45°
-
-        // Échelle pour ajuster la taille à l'écran
-        matrix.scale(1.5f, 2.3f, 1.5f);
-
-        return matrix;
-    }
-
-    /**
-     * Méthode utilitaire pour envoyer une matrice 4x4 au shader
-     */
-    private void setMatrix4f(Shader shader, String uniformName, Matrix4f matrix) {
-        FloatBuffer buffer = org.lwjgl.BufferUtils.createFloatBuffer(16);
-        matrix.get(buffer);
-
-        int location = glGetUniformLocation(shader.programID, uniformName);
-        if (location != -1) {
-            glUniformMatrix4fv(location, false, buffer);
-        }
     }
 
     @Override

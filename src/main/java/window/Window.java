@@ -144,10 +144,6 @@ public class Window {
         glfwPollEvents();
     }
 
-    public void clear(){
-        glClear(GL_COLOR_BUFFER_BIT);
-    }
-
     public void cleanup(){
         glfwFreeCallbacks(window);
         glfwDestroyWindow(window);

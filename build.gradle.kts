@@ -7,7 +7,6 @@ version = "1.0-SNAPSHOT"
 
 val lwjglVersion = "3.3.6"
 val jomlVersion = "1.10.8"
-val `joml-primitivesVersion` = "1.10.0"
 
 val lwjglNatives = Pair(
     System.getProperty("os.name")!!,
@@ -52,26 +51,18 @@ dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("org.lwjgl", "lwjgl")
-    implementation("org.lwjgl", "lwjgl-fmod")
     implementation("org.lwjgl", "lwjgl-glfw")
-    implementation("org.lwjgl", "lwjgl-ktx")
     implementation("org.lwjgl", "lwjgl-openal")
     implementation("org.lwjgl", "lwjgl-opengl")
-    implementation("org.lwjgl", "lwjgl-opus")
     implementation("org.lwjgl", "lwjgl-shaderc")
-    implementation("org.lwjgl", "lwjgl-spvc")
     implementation("org.lwjgl", "lwjgl-stb")
     implementation ("org.lwjgl", "lwjgl", classifier = lwjglNatives)
     implementation ("org.lwjgl", "lwjgl-glfw", classifier = lwjglNatives)
-    implementation ("org.lwjgl", "lwjgl-ktx", classifier = lwjglNatives)
     implementation ("org.lwjgl", "lwjgl-openal", classifier = lwjglNatives)
     implementation ("org.lwjgl", "lwjgl-opengl", classifier = lwjglNatives)
-    implementation ("org.lwjgl", "lwjgl-opus", classifier = lwjglNatives)
     implementation ("org.lwjgl", "lwjgl-shaderc", classifier = lwjglNatives)
-    implementation ("org.lwjgl", "lwjgl-spvc", classifier = lwjglNatives)
     implementation ("org.lwjgl", "lwjgl-stb", classifier = lwjglNatives)
     implementation("org.joml", "joml", jomlVersion)
-    implementation("org.joml", "joml-primitives", `joml-primitivesVersion`)
 }
 
 tasks.test {

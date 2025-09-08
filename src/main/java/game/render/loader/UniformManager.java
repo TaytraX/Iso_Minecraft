@@ -1,5 +1,9 @@
 package game.render.loader;
 
+import org.joml.Matrix4f;
+import org.lwjgl.BufferUtils;
+
+import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -76,6 +80,15 @@ public class UniformManager {
         Integer location = uniforms.get(name);
         if (location != null) {
             glUniform1i(location, value);
+        }
+    }
+
+    public void setMatrix4f(String name, Matrix4f matrix) {
+        Integer location = uniforms.get(name);
+        if (location != null) {
+            FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
+            matrix.get(buffer);
+            glUniformMatrix4fv(location, false, buffer);
         }
     }
 }

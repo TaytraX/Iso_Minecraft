@@ -20,6 +20,7 @@ public class Chunk {
         // Les coordonnées sont LOCALES au chunk (0-31 pour un chunk de 32x32x32)
         addBlock(0, 0, 0);
         addBlock(2, 0, 0);
+        addBlock(3, 0, 1);
     }
 
     // Ajouter un bloc au chunk (coordonnées locales)
