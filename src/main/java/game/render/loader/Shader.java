@@ -17,12 +17,11 @@ public class Shader {
     private int vertexShaderID;
     private int fragmentShaderID;
     private final GameDirectoryManager gameDirectoryManager;
-    private final UniformManager uniforms;
+    private UniformManager uniforms;
     private String sources;
 
     public Shader(String shaderName) throws ShaderCompilationException {
         gameDirectoryManager = new GameDirectoryManager();
-        uniforms = new UniformManager(programID);
 
         try {
             if (!tryLoadFromShaderpack(shaderName)) {
@@ -83,7 +82,6 @@ public class Shader {
             fragmentSource = new String(fragmentInputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
         sources = vertexSource + "\n" + fragmentSource;
-        uniforms.parseUniformsFromSource(sources);
         compile(vertexSource, fragmentSource); // Peut throw ShaderCompilationException
     }
 
@@ -100,8 +98,8 @@ public class Shader {
             String vertexSource = Files.readString(externalVertexPath);
             String fragmentSource = Files.readString(externalFragmentPath);
 
+            sources = vertexSource + "\n" + fragmentSource;
             compile(vertexSource, fragmentSource);
-            uniforms.parseUniformsFromSource(vertexSource + "\n" + fragmentSource);
             return true;
         }
         return false;
@@ -151,6 +149,8 @@ public class Shader {
         if (glGetProgrami(programID, GL_VALIDATE_STATUS) == GL_FALSE) {
             System.err.println("Erreur validation: " + glGetProgramInfoLog(programID));
         }
+        uniforms = new UniformManager(programID);
+        uniforms.parseUniformsFromSource(sources);
     }
 
     private void loadDefaultShader() {
@@ -167,7 +167,6 @@ public class Shader {
 
         sources = defaultVertex + "\n" + defaultFragment;// Rose shocking
 
-        uniforms.parseUniformsFromSource(sources);
         compile(defaultVertex, defaultFragment);
     }
 

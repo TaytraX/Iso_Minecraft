@@ -124,25 +124,24 @@ public class WorldRender implements GameRenderable {
         shader.getUniforms().setInt("u_texture", 0);
 
         // Créer et envoyer la matrice de projection isométrique
+        shader.getUniforms().setMatrix4f("u_viewMatrix", camera.getView());
         shader.getUniforms().setMatrix4f("u_projectionMatrix", camera.getProjection());
 
         // Parcourir tous les chunks chargés
-        worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> {
-            chunk.getBlocks().forEach((LocalBlockCoord, Block) -> {
+        worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> chunk.getBlocks().forEach((LocalBlockCoord, Block) -> {
 
-                // Obtenir la position mondiale du bloc
-                LocalBlockCoord worldPos = Block.getPosition();
+            // Obtenir la position mondiale du bloc
+            LocalBlockCoord worldPos = Block.getPosition();
 
-                // Matrice de transformation pour positionner le bloc
-                Matrix4f modelMatrix = new Matrix4f();
-                modelMatrix.translate(worldPos.x(), worldPos.y(), worldPos.z());
+            // Matrice de transformation pour positionner le bloc
+            Matrix4f modelMatrix = new Matrix4f();
+            modelMatrix.translate(worldPos.x(), worldPos.y(), worldPos.z());
 
-                shader.getUniforms().setMatrix4f("u_modelMatrix", modelMatrix);
+            shader.getUniforms().setMatrix4f("u_modelMatrix", modelMatrix);
 
-                // Dessiner le cube
-                glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
-            });
-        });
+            // Dessiner le cube
+            glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+        }));
 
         glBindVertexArray(0);
         shader.stop();
