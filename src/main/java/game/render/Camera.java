@@ -86,18 +86,19 @@ public class Camera {
         float velocity = SPEED * deltaTime;
         Vector3f movement = new Vector3f();
 
-        if (mouvement == FORWARD)
-            movement.add(new Vector3f(cameraFront).mul(velocity));
-        if (mouvement == BACKWARD)
-            movement.sub(new Vector3f(cameraFront).mul(velocity));
-        if (mouvement == LEFT)
-            movement.sub(new Vector3f(cameraRight).mul(velocity));
-        if (mouvement == RIGHT)
-            movement.add(new Vector3f(cameraRight).mul(velocity));
-        if (mouvement == UP)
-            movement.add(new Vector3f(cameraUp).mul(velocity));
-        if (mouvement == DOWN)
-            movement.sub(new Vector3f(cameraUp).mul(velocity));
+        // Vecteurs adaptés à la vue isométrique (angle 45° Y)
+        Vector3f isoForward = new Vector3f(-1, 0, -1).normalize();  // vers le "haut" de l'écran
+        Vector3f isoRight = new Vector3f(1, 0, -1).normalize();     // vers la "droite" de l'écran
+        Vector3f isoUp = new Vector3f(0, 1, 0);                     // vers le haut
+
+        switch (mouvement) {
+            case FORWARD -> movement.add(new Vector3f(isoForward).mul(velocity));
+            case BACKWARD -> movement.sub(new Vector3f(isoForward).mul(velocity));
+            case LEFT -> movement.sub(new Vector3f(isoRight).mul(velocity));
+            case RIGHT -> movement.add(new Vector3f(isoRight).mul(velocity));
+            case UP -> movement.add(new Vector3f(isoUp).mul(velocity));
+            case DOWN -> movement.sub(new Vector3f(isoUp).mul(velocity));
+        }
 
         cameraPos.coord.add(movement);
     }
@@ -111,23 +112,22 @@ public class Camera {
         // Projection orthogonale
         matrix.ortho(-10.0f, 10.0f, -10.0f, 10.0f, -100.0f, 100.0f);
 
-        // Vue isométrique avec angle correct pour préserver les proportions
-        matrix.rotateX((float) Math.toRadians(-35.264f));  // Angle mathématiquement correct
-        matrix.rotateY((float) Math.toRadians(45));        // Rotation de 45°
-
-        // Échelle pour ajuster la taille à l'écran
-        matrix.scale(1.5f, 2.3f, 1.5f);
 
         return matrix;
     }
 
     public void updateViewMatrix() {
         view.identity();
-        view.lookAt(
-                cameraPos.coord,
-                new Vector3f(cameraPos.coord).add(cameraFront),
-                cameraUp
-        );
+
+        // D'abord, on applique les rotations isométriques
+        view.rotateX((float) Math.toRadians(-35.264f));
+        view.rotateY((float) Math.toRadians(45));
+
+        // Optionnel : échelle pour ajuster la taille
+        view.scale(1.5f, 2.3f, 1.5f);
+
+        view.translate(new Vector3f(cameraPos.coord).negate());
+
         matrixBufferView.clear();
         view.get(matrixBufferView);
     }

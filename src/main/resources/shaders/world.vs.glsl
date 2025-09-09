@@ -12,7 +12,7 @@ out vec3 v_worldPos;
 
 void main() {
     // Calculer la position mondiale
-    vec4 worldPos = u_modelMatrix * u_viewMatrix * vec4(a_position, 1.0);
+    vec4 worldPos = u_viewMatrix * u_modelMatrix * vec4(a_position, 1.0);
     v_worldPos = worldPos.xyz;
 
     // Appliquer la projection isométrique
