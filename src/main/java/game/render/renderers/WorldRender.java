@@ -70,6 +70,7 @@ public class WorldRender implements GameRenderable {
         worldManager = new WorldManager();
     }
 
+
     @Override
     public void initialize() {
         setupBuffers();
@@ -86,7 +87,8 @@ public class WorldRender implements GameRenderable {
         // Buffer des vertices
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-        FloatBuffer vertexBuffer = org.lwjgl.BufferUtils.createFloatBuffer(cubeVertices.length * cubeVertices[0].length);
+        FloatBuffer vertexBuffer = org.lwjgl.BufferUtils.createFloatBuffer(120);
+
         for (float[] face : cubeVertices) {
             vertexBuffer.put(face);
         }
@@ -121,17 +123,19 @@ public class WorldRender implements GameRenderable {
         glBindTexture(GL_TEXTURE_2D, texture.getTextureID());
         shader.getUniforms().setInt("u_texture", 0);
 
+        // Créer et envoyer la matrice de projection isométrique
         shader.getUniforms().setMatrix4f("u_projectionMatrix", camera.getProjection());
 
         // Parcourir tous les chunks chargés
         worldManager.getLoadedChunk().forEach((chunkPos, chunk) -> {
-            chunk.getBlocks().forEach((localPos, block) -> {
+            chunk.getBlocks().forEach((LocalBlockCoord, Block) -> {
+
                 // Obtenir la position mondiale du bloc
-                LocalBlockCoord blockPos = block.getPosition();
+                LocalBlockCoord worldPos = Block.getPosition();
 
                 // Matrice de transformation pour positionner le bloc
                 Matrix4f modelMatrix = new Matrix4f();
-                modelMatrix.translate(blockPos.x(), blockPos.y(), blockPos.z());
+                modelMatrix.translate(worldPos.x(), worldPos.y(), worldPos.z());
 
                 shader.getUniforms().setMatrix4f("u_modelMatrix", modelMatrix);
 

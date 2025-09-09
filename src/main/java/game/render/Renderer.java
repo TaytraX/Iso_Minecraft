@@ -18,7 +18,7 @@ public class Renderer {
         int width = 1280;
         window = new Window("Iso_Minecraft", width, height, true);
         worldRender = new WorldRender();
-        camera = new Camera(deltaTime, (float) width / height);
+        camera = new Camera();
         init();
     }
 
@@ -40,7 +40,6 @@ public class Renderer {
         clear();
         worldRender.render(camera);
         window.update();
-        camera.update(window);
     }
 
     private void clear() {
